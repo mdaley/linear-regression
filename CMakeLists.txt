@@ -3,4 +3,4 @@ project(linear_regression)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY   ${PROJECT_SOURCE_DIR}/build)
-add_executable(linear_regression src/main.cpp)
+add_executable(linear_regression src/main.cpp src/CSV.cpp src/CSV.h src/Data.cpp src/Data.h)
