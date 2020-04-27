@@ -172,10 +172,10 @@ int main() {
     plt::show();
 
     // print a surface graph of cost for different values of theta
-    vector<vector<float>> a, b, c;
+    Matrix a, b, c;
 
     for (int i = 0; i < 101; i++) {
-        vector<float> a_row, b_row, c_row;
+        Vector a_row, b_row, c_row;
         for (int j = 0; j < 101; j++) {
             float t0 = -10 + i * 0.2f;
             float t1 = -1.0f + j * 0.05f;
