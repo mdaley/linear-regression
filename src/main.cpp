@@ -128,6 +128,20 @@ int main() {
     cout << "Do gradient descent..." << endl;
     gradientDescent(X, y, theta, 0.01f, 15000, size);
     cout << "Theta is " << theta[0] << " " << theta[1] << endl;
+
+    // create y points using final theta and the x points
+    Vector yFinal(size);
+    for (int i = 0; i < size; i++) {
+        yFinal[i] = X[0][i] * theta[0] + X[1][i] * theta[1];
+    }
+
+    // print a graph of the results
+    plt::scatter(x, y, 5.0f);
+    plt::plot(x, yFinal, "r-");
+    plt::ylabel("Profit in $10,000s");
+    plt::xlabel("Population of city in 10,000s");
+    plt::title("Linear regression\n");
+    plt::show();
     return 0;
 }
 
