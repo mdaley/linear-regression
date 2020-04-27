@@ -44,7 +44,7 @@ float sumVecMul(Vector a, Vector b, const int size) {
     return sum(c, size);
 }
 
-void gradientDescent(Matrix X,  Vector y,  Vector &theta, float alpha, int iterations, int size) {
+void gradientDescent(Matrix X,  Vector y,  Vector &theta, float alpha, int iterations, int size, Matrix &thetaHistory) {
     for (int i = 0; i < iterations; i++) {
         Vector h(size);
         for (int i = 0; i < size; i++) {
@@ -58,10 +58,17 @@ void gradientDescent(Matrix X,  Vector y,  Vector &theta, float alpha, int itera
             h_y[i] = h[i] - y[i];
         }
 
-        cout << "Cost = " << computeCost(X, y, theta, size) << endl;
+        float cost = computeCost(X, y, theta, size);
+
+        cout << "Cost = " << cost << endl;
 
         theta[0] -= f * sumVecMul(h_y, X[0], size);
         theta[1] -= f * sumVecMul(h_y, X[1], size);
+
+        // capture the history of theta and the cost function
+        thetaHistory[0][i] = theta[0];
+        thetaHistory[1][i] = theta[1];
+        thetaHistory[2][i] = cost;
     }
 }
 
@@ -126,7 +133,13 @@ int main() {
     cout << "Initial Cost = " << initialCost << endl;
 
     cout << "Do gradient descent..." << endl;
-    gradientDescent(X, y, theta, 0.01f, 15000, size);
+    int iterations = 1500;
+    Matrix thetaHistory(3);
+    thetaHistory[0] = Vector(iterations); // theta 0
+    thetaHistory[1] = Vector(iterations); // theta 1
+    thetaHistory[2] = Vector(iterations); // cost function
+
+    gradientDescent(X, y, theta, 0.01f, iterations, size, thetaHistory);
     cout << "Theta is " << theta[0] << " " << theta[1] << endl;
 
     // create y points using final theta and the x points
@@ -135,6 +148,21 @@ int main() {
         yFinal[i] = X[0][i] * theta[0] + X[1][i] * theta[1];
     }
 
+    // theta history
+    float theta0min = numeric_limits<float>::max();
+    float theta0max = numeric_limits<float>::min();
+    float theta1min = numeric_limits<float>::max();
+    float theta1max = numeric_limits<float>::min();
+    for (int i = 0; i < iterations; i++) {
+        theta0min = thetaHistory[0][i] < theta0min ? thetaHistory[0][i] : theta0min;
+        theta0max = thetaHistory[0][i] > theta0max ? thetaHistory[0][i] : theta0max;
+        theta1min = thetaHistory[1][i] < theta1min ? thetaHistory[1][i] : theta1min;
+        theta1max = thetaHistory[1][i] > theta1max ? thetaHistory[1][i] : theta1max;
+    }
+
+    cout << theta0min << " <= theta[0] >= " << theta0max << endl;
+    cout << theta1min << " <= theta[1] >= " << theta1max << endl;
+
     // print a graph of the results
     plt::scatter(x, y, 5.0f);
     plt::plot(x, yFinal, "r-");
@@ -142,6 +170,29 @@ int main() {
     plt::xlabel("Population of city in 10,000s");
     plt::title("Linear regression\n");
     plt::show();
+
+    // print a surface graph of cost for different values of theta
+    vector<vector<float>> a, b, c;
+
+    for (int i = 0; i < 101; i++) {
+        vector<float> a_row, b_row, c_row;
+        for (int j = 0; j < 101; j++) {
+            float t0 = -10 + i * 0.2f;
+            float t1 = -1.0f + j * 0.05f;
+            vector t {t0, t1};
+            float cost = computeCost(X, y, t, size);
+            a_row.push_back(t0);
+            b_row.push_back(t1);
+            c_row.push_back(cost);
+        }
+        a.push_back(a_row);
+        b.push_back(b_row);
+        c.push_back(c_row);
+    }
+
+    plt::plot_surface(a, b, c);
+    plt::show();
+
     return 0;
 }
 
