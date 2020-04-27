@@ -1,8 +1,10 @@
 #include <iostream>
 #include "CSV.h"
 #include "Data.h"
+#include "matplotlib.h"
 
 using namespace std;
+namespace plt = matplotlibcpp;
 
 typedef vector<vector<float>> Matrix;
 typedef vector<float> Vector;
