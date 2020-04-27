@@ -15,23 +15,7 @@ class CSV {
 public:
 
     template <typename T>
-    static vector<T> parseCsv(string filename, function<T(vector<string_view>)> mappingFn); /*{
-        ifstream file = ifstream(filename);
-
-        if (!file.good()) {
-            throw invalid_argument("file invalid: " + filename);
-        }
-
-        vector<T> results;
-        string line;
-
-        while(getline(file, line)) {
-            vector<string_view> values = splitString(line, ",");
-            results.emplace_back(mappingFn(values));
-        }
-
-        return results;
-    }*/
+    static vector<T> parseCsv(string filename, function<T(vector<string_view>)> mappingFn);
 };
 
 template <typename T>
