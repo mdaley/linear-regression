@@ -179,7 +179,7 @@ int main() {
         for (int j = 0; j < 101; j++) {
             float t0 = -10 + i * 0.2f;
             float t1 = -1.0f + j * 0.05f;
-            vector t {t0, t1};
+            vector<float> t {t0, t1};
             float cost = computeCost(X, y, t, size);
             a_row.push_back(t0);
             b_row.push_back(t1);
@@ -190,7 +190,18 @@ int main() {
         c.push_back(c_row);
     }
 
-    plt::plot_surface(a, b, c);
+    map<string, plt::SettingValue> settings;
+
+    settings.insert({"edgecolor", plt::SettingValue(string("black"))});
+    settings.insert({"linewidth", plt::SettingValue(2.0f)});
+    settings.insert({"linestyle", plt::SettingValue(string("--"))});
+    settings.insert({"alpha", plt::SettingValue(0.5f)});
+    settings.insert({"rstride", plt::SettingValue(10)});
+    settings.insert({"cstride", plt::SettingValue(10)});
+
+    settings.insert({"cmap", plt::SettingValue(string("gist_rainbow"))});
+
+    plt::plot_surface(a, b, c, settings);
     plt::show();
 
     return 0;

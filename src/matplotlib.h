@@ -241,7 +241,42 @@ private:
 
 } // end namespace detail
 
-/// Select the backend
+struct SettingValue {
+    int type;
+    bool boolValue;
+    string stringValue;
+    float floatValue;
+    int intValue;
+
+public:
+    static const int String = 0;
+    static const int Bool = 1;
+    static const int Float = 2;
+    static const int Int = 3;
+
+    SettingValue(const bool value) {
+        this->boolValue = value;
+        this->type = SettingValue::Bool;
+    }
+
+    SettingValue(string value) {
+        this->stringValue = value;
+        this->type = SettingValue::String;
+    }
+
+    SettingValue(float value) {
+        this->floatValue = value;
+        this->type = SettingValue::Float;
+    }
+
+    SettingValue(int value) {
+        this->intValue = value;
+        this->type = SettingValue::Int;
+    }
+};
+
+
+    /// Select the backend
 ///
 /// **NOTE:** This must be called before the first plot command to have
 /// any effect.
@@ -298,10 +333,10 @@ template <> struct select_npy_type<uint64_t> { const static NPY_TYPES type = NPY
 
 // Sanity checks; comment them out or change the numpy type below if you're compiling on
 // a platform where they don't apply
-static_assert(sizeof(long long) == 8);
-template <> struct select_npy_type<long long> { const static NPY_TYPES type = NPY_INT64; };
-static_assert(sizeof(unsigned long long) == 8);
-template <> struct select_npy_type<unsigned long long> { const static NPY_TYPES type = NPY_UINT64; };
+//static_assert(sizeof(long long) == 8);
+//template <> struct select_npy_type<long long> { const static NPY_TYPES type = NPY_INT64; };
+//static_assert(sizeof(unsigned long long) == 8);
+//template <> struct select_npy_type<unsigned long long> { const static NPY_TYPES type = NPY_UINT64; };
 // TODO: add int, long, etc.
 
 template<typename Numeric>
@@ -426,8 +461,8 @@ template <typename Numeric>
 void plot_surface(const std::vector<::std::vector<Numeric>> &x,
                   const std::vector<::std::vector<Numeric>> &y,
                   const std::vector<::std::vector<Numeric>> &z,
-                  const std::map<std::string, std::string> &keywords =
-                      std::map<std::string, std::string>())
+                  const std::map<std::string, SettingValue> &keywords =
+                      std::map<std::string, SettingValue>())
 {
   // We lazily load the modules here the first time this function is called
   // because I'm not sure that we can assume "matplotlib installed" implies
@@ -466,20 +501,27 @@ void plot_surface(const std::vector<::std::vector<Numeric>> &x,
 
   // Build up the kw args.
   PyObject *kwargs = PyDict_New();
-  PyDict_SetItemString(kwargs, "rstride", PyInt_FromLong(1));
-  PyDict_SetItemString(kwargs, "cstride", PyInt_FromLong(1));
 
-  PyObject *python_colormap_coolwarm = PyObject_GetAttrString(
-      detail::_interpreter::get().s_python_colormap, "coolwarm");
-
-  PyDict_SetItemString(kwargs, "cmap", python_colormap_coolwarm);
-
-  for (std::map<std::string, std::string>::const_iterator it = keywords.begin();
+  for (std::map<std::string, SettingValue>::const_iterator it = keywords.begin();
        it != keywords.end(); ++it) {
-    PyDict_SetItemString(kwargs, it->first.c_str(),
-                         PyString_FromString(it->second.c_str()));
-  }
+      PyObject *key = PyString_FromString(it->first.c_str());
+      SettingValue value = it->second;
 
+      switch (value.type) {
+          case SettingValue::String:
+              PyDict_SetItem(kwargs, key, PyString_FromString(value.stringValue.c_str()));
+              break;
+          case SettingValue::Float:
+              PyDict_SetItem(kwargs, key, PyFloat_FromDouble(value.floatValue));
+              break;
+          case SettingValue::Int:
+              PyDict_SetItem(kwargs, key, PyInt_FromLong(value.intValue));
+              break;
+          case SettingValue::Bool:
+              PyDict_SetItem(kwargs, key, PyBool_FromLong(value.boolValue));
+              break;
+      }
+  }
 
   PyObject *fig =
       PyObject_CallObject(detail::_interpreter::get().s_python_function_figure,
