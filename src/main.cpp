@@ -1,7 +1,7 @@
 #include <iostream>
 #include "CSV.h"
 #include "Data.h"
-#include "matplotlib.h"
+#include "matplotlibcpp.h"
 
 using namespace std;
 namespace plt = matplotlibcpp;

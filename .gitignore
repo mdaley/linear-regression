@@ -1,5 +1,6 @@
 .idea/
 *.iml
+*.cbp
 CMakeCache.txt
 CMakeFiles/
 cmake-build-debug/

@@ -241,42 +241,41 @@ private:
 
 } // end namespace detail
 
-struct SettingValue {
-    int type;
-    bool boolValue;
-    string stringValue;
-    float floatValue;
-    int intValue;
+    struct SettingValue {
+        int type;
+        bool boolValue;
+        std::string stringValue;
+        float floatValue;
+        int intValue;
 
-public:
-    static const int String = 0;
-    static const int Bool = 1;
-    static const int Float = 2;
-    static const int Int = 3;
+    public:
+        static const int String = 0;
+        static const int Bool = 1;
+        static const int Float = 2;
+        static const int Int = 3;
 
-    SettingValue(const bool value) {
-        this->boolValue = value;
-        this->type = SettingValue::Bool;
-    }
+        SettingValue(const bool value) {
+            this->boolValue = value;
+            this->type = SettingValue::Bool;
+        }
 
-    SettingValue(string value) {
-        this->stringValue = value;
-        this->type = SettingValue::String;
-    }
+        SettingValue(std::string value) {
+            this->stringValue = value;
+            this->type = SettingValue::String;
+        }
 
-    SettingValue(float value) {
-        this->floatValue = value;
-        this->type = SettingValue::Float;
-    }
+        SettingValue(float value) {
+            this->floatValue = value;
+            this->type = SettingValue::Float;
+        }
 
-    SettingValue(int value) {
-        this->intValue = value;
-        this->type = SettingValue::Int;
-    }
-};
+        SettingValue(int value) {
+            this->intValue = value;
+            this->type = SettingValue::Int;
+        }
+    };
 
-
-    /// Select the backend
+/// Select the backend
 ///
 /// **NOTE:** This must be called before the first plot command to have
 /// any effect.
@@ -333,9 +332,9 @@ template <> struct select_npy_type<uint64_t> { const static NPY_TYPES type = NPY
 
 // Sanity checks; comment them out or change the numpy type below if you're compiling on
 // a platform where they don't apply
-//static_assert(sizeof(long long) == 8);
+static_assert(sizeof(long long) == 8, "");
 //template <> struct select_npy_type<long long> { const static NPY_TYPES type = NPY_INT64; };
-//static_assert(sizeof(unsigned long long) == 8);
+static_assert(sizeof(unsigned long long) == 8, "");
 //template <> struct select_npy_type<unsigned long long> { const static NPY_TYPES type = NPY_UINT64; };
 // TODO: add int, long, etc.
 
@@ -522,6 +521,7 @@ void plot_surface(const std::vector<::std::vector<Numeric>> &x,
               break;
       }
   }
+
 
   PyObject *fig =
       PyObject_CallObject(detail::_interpreter::get().s_python_function_figure,

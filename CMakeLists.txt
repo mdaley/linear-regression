@@ -13,7 +13,7 @@ message("Python_LIBRARIES:${Python_LIBRARIES}")
 message("Python_INCLUDE_DIRS:${Python_INCLUDE_DIRS}")
 message("Python_NumPy_INCLUDE_DIRS:${Python_NumPy_INCLUDE_DIRS}")
 
-add_executable(linear_regression src/main.cpp src/CSV.cpp src/CSV.h src/Data.cpp src/Data.h src/matplotlib.h)
+add_executable(linear_regression src/main.cpp src/CSV.cpp src/CSV.h src/Data.cpp src/Data.h src/matplotlibcpp.h)
 
 target_include_directories(linear_regression PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS})
 target_link_libraries(linear_regression ${Python_LIBRARIES})
