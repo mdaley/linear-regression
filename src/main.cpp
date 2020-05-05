@@ -202,6 +202,9 @@ int main() {
     settings.insert({"cmap", plt::SettingValue(string("gist_rainbow"))});
 
     plt::plot_surface(a, b, c, settings);
+    plt::xlabel("Theta(0)");
+    plt::ylabel("Theta(1)");
+    plt::set_zlabel("Cost function");
     plt::show();
 
     return 0;
