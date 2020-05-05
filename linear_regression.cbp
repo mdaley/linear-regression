@@ -84,10 +84,28 @@
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/Data.h">
 			<Option target="linear_regression"/>
 		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/ex1a.cpp">
+			<Option target="linear_regression"/>
+		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/ex1a.h">
+			<Option target="linear_regression"/>
+		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/ex1b.cpp">
+			<Option target="linear_regression"/>
+		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/ex1b.h">
+			<Option target="linear_regression"/>
+		</Unit>
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/main.cpp">
 			<Option target="linear_regression"/>
 		</Unit>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/matplotlib.h">
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/matplotlibcpp.h">
+			<Option target="linear_regression"/>
+		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/utils.cpp">
+			<Option target="linear_regression"/>
+		</Unit>
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/utils.h">
 			<Option target="linear_regression"/>
 		</Unit>
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/CMakeLists.txt">
