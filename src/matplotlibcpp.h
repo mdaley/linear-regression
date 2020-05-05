@@ -1799,6 +1799,26 @@ inline void xlabel(const std::string &str, const std::map<std::string, std::stri
     Py_DECREF(res);
 }
 
+// TODO: Should be possible to do this better, without duplicating functions.
+inline void xlabel_u(const std::wstring &str, const std::map<std::string, std::wstring> &keywords = {})
+{
+    PyObject* pystr = PyUnicode_FromUnicode(str.c_str(), str.length());
+    PyObject* args = PyTuple_New(1);
+    PyTuple_SetItem(args, 0, pystr);
+
+    PyObject* kwargs = PyDict_New();
+    for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+        PyDict_SetItemString(kwargs, it->first.c_str(), PyUnicode_FromUnicode(it->second.c_str(), it->second.length()));
+    }
+
+    PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_xlabel, args, kwargs);
+    if(!res) throw std::runtime_error("Call to xlabel() failed.");
+
+    Py_DECREF(args);
+    Py_DECREF(kwargs);
+    Py_DECREF(res);
+}
+
 inline void ylabel(const std::string &str, const std::map<std::string, std::string>& keywords = {})
 {
     PyObject* pystr = PyString_FromString(str.c_str());
@@ -1808,6 +1828,25 @@ inline void ylabel(const std::string &str, const std::map<std::string, std::stri
     PyObject* kwargs = PyDict_New();
     for (auto it = keywords.begin(); it != keywords.end(); ++it) {
         PyDict_SetItemString(kwargs, it->first.c_str(), PyUnicode_FromString(it->second.c_str()));
+    }
+
+    PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_ylabel, args, kwargs);
+    if(!res) throw std::runtime_error("Call to ylabel() failed.");
+
+    Py_DECREF(args);
+    Py_DECREF(kwargs);
+    Py_DECREF(res);
+}
+
+inline void ylabel_u(const std::wstring &str, const std::map<std::string, std::wstring>& keywords = {})
+{
+    PyObject* pystr = PyUnicode_FromUnicode(str.c_str(), str.length());
+    PyObject* args = PyTuple_New(1);
+    PyTuple_SetItem(args, 0, pystr);
+
+    PyObject* kwargs = PyDict_New();
+    for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+        PyDict_SetItemString(kwargs, it->first.c_str(), PyUnicode_FromUnicode(it->second.c_str(), it->second.length()));
     }
 
     PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_ylabel, args, kwargs);
@@ -1852,6 +1891,57 @@ inline void set_zlabel(const std::string &str, const std::map<std::string, std::
     PyObject *ax =
     PyObject_CallObject(detail::_interpreter::get().s_python_function_gca,
       detail::_interpreter::get().s_python_empty_tuple);
+    if (!ax) throw std::runtime_error("Call to gca() failed.");
+    Py_INCREF(ax);
+
+    PyObject *zlabel = PyObject_GetAttrString(ax, "set_zlabel");
+    if (!zlabel) throw std::runtime_error("Attribute set_zlabel not found.");
+    Py_INCREF(zlabel);
+
+    PyObject *res = PyObject_Call(zlabel, args, kwargs);
+    if (!res) throw std::runtime_error("Call to set_zlabel() failed.");
+    Py_DECREF(zlabel);
+
+    Py_DECREF(ax);
+    Py_DECREF(args);
+    Py_DECREF(kwargs);
+    if (res) Py_DECREF(res);
+}
+
+inline void set_zlabel_u(const std::wstring &str, const std::map<std::string, std::wstring>& keywords = {}) {
+    // Same as with plot_surface: We lazily load the modules here the first time
+    // this function is called because I'm not sure that we can assume "matplotlib
+    // installed" implies "mpl_toolkits installed" on all platforms, and we don't
+    // want to require it for people who don't need 3d plots.
+    static PyObject *mpl_toolkitsmod = nullptr, *axis3dmod = nullptr;
+    if (!mpl_toolkitsmod) {
+        detail::_interpreter::get();
+
+        PyObject* mpl_toolkits = PyString_FromString("mpl_toolkits");
+        PyObject* axis3d = PyString_FromString("mpl_toolkits.mplot3d");
+        if (!mpl_toolkits || !axis3d) { throw std::runtime_error("couldnt create string"); }
+
+        mpl_toolkitsmod = PyImport_Import(mpl_toolkits);
+        Py_DECREF(mpl_toolkits);
+        if (!mpl_toolkitsmod) { throw std::runtime_error("Error loading module mpl_toolkits!"); }
+
+        axis3dmod = PyImport_Import(axis3d);
+        Py_DECREF(axis3d);
+        if (!axis3dmod) { throw std::runtime_error("Error loading module mpl_toolkits.mplot3d!"); }
+    }
+
+    PyObject* pystr = PyUnicode_FromUnicode(str.c_str(), str.length());
+    PyObject* args = PyTuple_New(1);
+    PyTuple_SetItem(args, 0, pystr);
+
+    PyObject* kwargs = PyDict_New();
+    for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+        PyDict_SetItemString(kwargs, it->first.c_str(), PyUnicode_FromUnicode(it->second.c_str(), it->second.length()));
+    }
+
+    PyObject *ax =
+            PyObject_CallObject(detail::_interpreter::get().s_python_function_gca,
+                                detail::_interpreter::get().s_python_empty_tuple);
     if (!ax) throw std::runtime_error("Call to gca() failed.");
     Py_INCREF(ax);
 
