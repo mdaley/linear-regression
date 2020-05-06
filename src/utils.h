@@ -1,6 +1,8 @@
 #ifndef LINEAR_REGRESSION_UTILS_H
 #define LINEAR_REGRESSION_UTILS_H
 
+#include <iostream>
+#include <iomanip>
 #include <vector>
 #include <math.h>
 
@@ -34,5 +36,7 @@ Vector columnStandardDeviations(const Matrix& m);
 void subtract(Matrix& m, const Vector& v);
 
 void divide(Matrix& m, const Vector& v);
+
+void printMatrix(Matrix& m);
 
 #endif //LINEAR_REGRESSION_UTILS_H

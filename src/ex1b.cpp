@@ -26,50 +26,7 @@ int ex1b() {
     divide(data, columnStandardDeviations(data));
 
     cout << "NORMALISED" << endl;
-    for (int i = 0; i < data.size(); i++) {
-        Vector row = data[i];
-        for(int j = 0; j < row.size(); j++) {
-            cout << row[j] << " ";
-        }
-        cout << endl;
-    }
-
-    /*Matrix transposed = transpose(data);
-
-    cout << "TRANSPOSED" << endl;
-    for (int i = 0; i < transposed.size(); i++) {
-        Vector row = transposed[i];
-        for (int j = 0; j < row.size(); j++) {
-            cout << row[j] << " ";
-        }
-        cout << endl;
-    }
-
-    Vector means = columnMeans(data);
-
-    cout << "MEANS" << endl;
-    for (int i = 0; i < means.size(); i++) {
-      cout << means[i] << " ";
-    }
-    cout << endl;
-
-    subtract(data, means);
-
-    Vector sds = columnStandardDeviations(data);
-
-    cout << "Standard Deviations" << endl;
-    for (int i = 0; i < sds.size(); i++) {
-        cout << sds[i] << " ";
-    }
-    cout << endl;
-
-    for (int i = 0; i < data.size(); i++) {
-        Vector row = data[i];
-        for(int j = 0; j < row.size(); j++) {
-            cout << row[j] << " ";
-        }
-        cout << endl;
-    }*/
+    printMatrix(data);
 
     return 0;
 }

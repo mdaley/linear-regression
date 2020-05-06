@@ -2,7 +2,10 @@
 // Created by Matthew Daley on 05/05/2020.
 //
 
+#include <cfloat>
 #include "utils.h"
+
+using namespace std;
 
 float computeCost(Matrix& X, Vector& y,  Vector& theta, int size) {
     Vector h(size);
@@ -114,5 +117,16 @@ void divide(Matrix& m, const Vector& v) {
         for (int j = 0; j < v.size(); j++) {
             m[i][j] /= v[j];
         }
+    }
+}
+
+void printMatrix(Matrix& m) {
+    cout.precision(6);
+    for (int i = 0; i < m.size(); i++) {
+        Vector row = m[i];
+        for(int j = 0; j < row.size(); j++) {
+            cout << setw(13) << right << row[j] << " ";
+        }
+        cout << endl;
     }
 }
