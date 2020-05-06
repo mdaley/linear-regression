@@ -28,6 +28,28 @@ int ex1b() {
     cout << "NORMALISED" << endl;
     printMatrix(data);
 
+    Matrix x = columnsSubMatrix(data, 0, 1);
+    Vector y = columnOfMatrix(data, 2);
+    Matrix X(x.size());
+    for (int i = 0; i < x.size(); i++) {
+        X[i] = Vector(x[i].size() + 1);
+        X[i][0] = 1.0f;
+        for (int j = 0; j < x[i].size(); j++) {
+            X[i][j + 1] = x[i][j];
+        }
+    }
+
+    cout << "X" << endl;
+    printMatrix(X);
+
+    printVector(y);
+
+    Vector theta(3);
+
+    cout << "X_thata" << endl;
+    Matrix X_theta = multiply(X, theta);
+
+    printMatrix(X_theta);
     return 0;
 }
 

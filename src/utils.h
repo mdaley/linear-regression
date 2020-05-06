@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <utility>
+#include <sstream>
 #include <math.h>
 
 using namespace std;
@@ -38,5 +40,15 @@ void subtract(Matrix& m, const Vector& v);
 void divide(Matrix& m, const Vector& v);
 
 void printMatrix(Matrix& m);
+
+void printVector(Vector& v);
+
+Matrix columnsSubMatrix(Matrix& m, int colStart, int colEnd);
+
+Vector columnOfMatrix(Matrix& m, int col);
+
+Matrix multiply(Matrix& m, Matrix& n);
+
+Matrix multiply(Matrix& m, Vector& v);
 
 #endif //LINEAR_REGRESSION_UTILS_H

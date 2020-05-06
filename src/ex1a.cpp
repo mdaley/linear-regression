@@ -122,7 +122,7 @@ int ex1a() {
     cout << theta0min << " <= theta[0] >= " << theta0max << endl;
     cout << theta1min << " <= theta[1] >= " << theta1max << endl;
 
-    // print a graph of the results
+    // display a graph of the results
     plt::scatter(x, y, 5.0f);
     plt::plot(x, yFinal, "r-");
     plt::ylabel("Profit in $10,000s");
@@ -130,7 +130,7 @@ int ex1a() {
     plt::title("Linear regression\n");
     plt::show();
 
-    // print a surface graph of cost for different values of theta
+    // display a surface graph of cost for different values of theta
     Matrix a, b, c;
 
     for (int i = 0; i < 101; i++) {

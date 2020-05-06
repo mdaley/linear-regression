@@ -130,3 +130,93 @@ void printMatrix(Matrix& m) {
         cout << endl;
     }
 }
+
+void printVector(Vector& v) {
+    cout.precision(6);
+    for (int i = 0; i < v.size(); i++) {
+        cout << setw(13) << right << v[i] << endl;
+    }
+}
+
+Matrix columnsSubMatrix(Matrix& m, int colStart, int colEnd) {
+    if (colStart < 0 || colEnd >= m[0].size() || colEnd < colStart) {
+        throw invalid_argument("col start and end must be in range and col end >= col start.");
+    }
+
+    Matrix o(m.size());
+    for(int i = 0; i < m.size(); i++) {
+         o[i] = Vector(colEnd - colStart + 1);
+        for (int j = 0; j < colEnd - colStart + 1; j++) {
+            o[i][j] = m[i][colStart + j];
+        }
+    }
+
+    return o;
+}
+
+Vector columnOfMatrix(Matrix& m, int col) {
+    if (col < 0 || col >= m[0].size()) {
+        throw invalid_argument("column of matrix out of range.");
+    }
+
+    Vector v(m.size());
+    for (int i = 0; i < m.size(); i++) {
+        v[i] = m[i][col];
+    }
+
+    return v;
+}
+
+pair<int, int> dimensions(Matrix& m) {
+    return pair<int, int>(m.size(), m.size() > 0 ? m[0].size() : 0);
+}
+
+string dimensionsToString(pair<int, int> dimensions) {
+    ostringstream ss;
+    ss << "[" << dimensions.first << " " << dimensions.second << "]";
+    return ss.str();
+}
+
+Matrix multiply(Matrix& m, Matrix& n) {
+    if (m.size() < 1 || m[0].size() < 1 || n.size() < 1 || n[0].size() < 1) {
+        throw invalid_argument("matrics must have dimensions 1 or greater");
+    }
+
+    if (m[0].size() != n.size()) {
+        ostringstream ss;
+        ss << "matrices of " << dimensionsToString(dimensions(m)) << " and " << dimensionsToString(dimensions(n))
+            << " cannot be multiplied.";
+        throw invalid_argument(ss.str());
+    }
+
+    Matrix o(m.size());
+    for (int i = 0; i < m.size(); i++) {
+        o[i] = Vector(n[0].size());
+    }
+
+    for (int i = 0; i < m.size(); i++) {
+        for (int j = 0; j < n[0].size(); j++) {
+            o[i][j] = 0.0f;
+            for (int k = 0; k < n.size(); k++) {
+                o[i][j] += m[i][j] * n[k][j];
+            }
+        }
+    }
+
+    return o;
+}
+
+Matrix matrixFromVector(Vector& v) {
+    Matrix m(v.size());
+    for (int i = 0; i < v.size(); i++) {
+        m[i] = Vector(1);
+        m[i][0] = v[i];
+    }
+
+    return m;
+}
+
+Matrix multiply(Matrix& m, Vector& v) {
+    Matrix n = matrixFromVector(v);
+    return multiply(m, n);
+}
