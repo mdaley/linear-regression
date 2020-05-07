@@ -46,6 +46,7 @@
 				<Compiler>
 					<Add directory="/usr/local/Cellar/python/3.7.7/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
 					<Add directory="/usr/local/lib/python3.7/site-packages/numpy/core/include"/>
+					<Add directory="/Users/mdaley/workspace/clion/linear-regression/include"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/mdaley/workspace/clion/linear-regression/Makefile&quot;  VERBOSE=1 linear_regression"/>
@@ -63,6 +64,7 @@
 				<Compiler>
 					<Add directory="/usr/local/Cellar/python/3.7.7/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
 					<Add directory="/usr/local/lib/python3.7/site-packages/numpy/core/include"/>
+					<Add directory="/Users/mdaley/workspace/clion/linear-regression/include"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/mdaley/workspace/clion/linear-regression/Makefile&quot;  VERBOSE=1 linear_regression/fast"/>

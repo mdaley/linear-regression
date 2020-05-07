@@ -3,7 +3,11 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
-void gradientDescent(Matrix X,  Vector y,  Vector &theta, float alpha, int iterations, int size, Matrix &thetaHistory) {
+int ex1a() {
+
+}
+
+/*void gradientDescent(Matrix X,  Vector y,  Vector &theta, float alpha, int iterations, int size, Matrix &thetaHistory) {
     for (int i = 0; i < iterations; i++) {
         Vector h(size);
         for (int i = 0; i < size; i++) {
@@ -167,5 +171,5 @@ int ex1a() {
     plt::show();
 
     return 0;
-}
+}*/
 

@@ -1,7 +1,14 @@
 #ifndef LINEAR_REGRESSION_UTILS_H
 #define LINEAR_REGRESSION_UTILS_H
 
-#include <iostream>
+#include <Eigen/Dense>
+
+using namespace std;
+using namespace Eigen;
+
+VectorXd standardDeviations(MatrixXd& m);
+
+/*#include <iostream>
 #include <iomanip>
 #include <vector>
 #include <utility>
@@ -49,6 +56,6 @@ Vector columnOfMatrix(Matrix& m, int col);
 
 Matrix multiply(Matrix& m, Matrix& n);
 
-Matrix multiply(Matrix& m, Vector& v);
+Matrix multiply(Matrix& m, Vector& v);*/
 
 #endif //LINEAR_REGRESSION_UTILS_H

@@ -9,6 +9,7 @@
 #include <vector>
 #include "CSV.h"
 #include "utils.h"
+#include <Eigen/Dense>
 
 int ex1b();
 

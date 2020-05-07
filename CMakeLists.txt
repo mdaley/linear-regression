@@ -15,5 +15,5 @@ message("Python_NumPy_INCLUDE_DIRS:${Python_NumPy_INCLUDE_DIRS}")
 
 add_executable(linear_regression src/main.cpp src/CSV.cpp src/CSV.h src/Data.cpp src/Data.h src/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h)
 
-target_include_directories(linear_regression PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS})
+target_include_directories(linear_regression PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} include)
 target_link_libraries(linear_regression ${Python_LIBRARIES})

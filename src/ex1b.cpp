@@ -3,31 +3,47 @@
 //
 
 #include "ex1b.h"
+#include "utils.h"
+
+using namespace Eigen;
 
 using namespace std;
 
 int ex1b() {
     cout << "Multiple variable linear regression..." << endl;
 
-    function<vector<float>(vector<string_view>)> mappingFn = [] (vector<string_view> in) -> vector<float> {
-        
-        vector<float> data(in.size());
-        
-        for (int i = 0; i < in.size(); i++) {
-            data[i] = stof(string(in.at(i)).c_str());
-        }
-        return data;
-    };
+    MatrixXd data = parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1b_data.csv");
 
-    Matrix data = CSV::parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1b_data.csv", mappingFn);
+    cout <<" DATA" << endl << data << endl;
 
-    // normalise
-    subtract(data, columnMeans(data));
-    divide(data, columnStandardDeviations(data));
+    MatrixXd _X = data.leftCols(data.cols() - 1);
+    VectorXd y = data.rightCols(1);
 
-    cout << "NORMALISED" << endl;
-    printMatrix(data);
+    VectorXd means = _X.colwise().mean();
 
+    cout << "MEANS" << endl << means.transpose() << endl;
+
+    _X.rowwise() -= means.transpose();
+
+    cout << "MEAN SUBTRACTED" << endl << _X << endl;
+
+    VectorXd sds = standardDeviations(_X);
+
+    cout << "STANDARD DEVIATIONS " << endl << sds.transpose() << endl;
+
+    for(int i = 0; i < _X.cols(); i++) {
+        _X.col(i) /= sds[i];
+    }
+
+    cout << "NORMALISED " << endl << _X << endl;
+
+    MatrixXd X(_X.rows(), _X.cols() + 1);
+    X << VectorXd::Ones(_X.rows()), _X;
+
+    cout << "X " << endl << X << endl;
+
+    cout << "y " << endl << y.transpose() << endl;
+    /*
     Matrix x = columnsSubMatrix(data, 0, 1);
     Vector y = columnOfMatrix(data, 2);
     Matrix X(x.size());
@@ -49,7 +65,7 @@ int ex1b() {
     cout << "X_thata" << endl;
     Matrix X_theta = multiply(X, theta);
 
-    printMatrix(X_theta);
+    printMatrix(X_theta);*/
     return 0;
 }
 

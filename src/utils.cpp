@@ -2,7 +2,24 @@
 // Created by Matthew Daley on 05/05/2020.
 //
 
-#include <cfloat>
+#include "utils.h"
+
+using namespace std;
+using namespace Eigen;
+
+VectorXd standardDeviations(MatrixXd& m) {
+    VectorXd means = m.colwise().mean();
+
+    MatrixXd n = m.rowwise() - means.transpose();
+
+    ArrayXd sqns = m.colwise().squaredNorm().array();
+
+    ArrayXd sds = (sqns / m.rows()).sqrt();
+
+    return sds.matrix();
+}
+
+/*#include <cfloat>
 #include "utils.h"
 
 using namespace std;
@@ -219,4 +236,4 @@ Matrix matrixFromVector(Vector& v) {
 Matrix multiply(Matrix& m, Vector& v) {
     Matrix n = matrixFromVector(v);
     return multiply(m, n);
-}
+}*/
