@@ -1,7 +1,3 @@
-//
-// Created by Matthew Daley on 05/05/2020.
-//
-
 #include "ex1b.h"
 
 using namespace Eigen;

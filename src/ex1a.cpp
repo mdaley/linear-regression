@@ -3,29 +3,6 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
-void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, MatrixXd &thetaHistory) {
-    for (int i = 0; i < iterations; i++) {
-
-        VectorXd h(size);
-        h = X * theta;
-
-        double f = alpha / size;
-
-        VectorXd h_y(size);
-        h_y = h - y;
-
-        float cost = computeCost(X, y, theta, size);
-
-        cout << "Cost = " << cost << endl;
-
-        for (int j = 0; j < theta.size(); j++) {
-            theta[j] -= f * (h_y.array() * X.col(j).array()).sum();
-        }
-
-        thetaHistory.row(i) = theta;
-    }
-}
-
 int ex1a() {
     cout << "Single variable linear regression..." << endl;
 
@@ -42,9 +19,9 @@ int ex1a() {
     VectorXd y(size);
     y << data.rightCols(1);
 
-    cout << "X " << endl << X << endl;
+    cout << "X = " << endl << X << endl;
 
-    cout << "y " << y.transpose() << endl;
+    cout << "y = " << y.transpose() << endl;
 
     VectorXd theta(2);
     theta << 0, 0;
@@ -77,20 +54,17 @@ int ex1a() {
     thetaMinMax.row(1) = thetaHistory.colwise().maxCoeff();
 
     cout << "Theta min / max =" << endl << thetaMinMax << endl;
-    /*
 
-    // display a surface graph of cost for different values of theta
-    Matrix a, b, c;
+    vector<vector<double>> a, b, c;
 
     for (int i = 0; i < 101; i++) {
-        Vector a_row, b_row, c_row;
+        vector<double> a_row, b_row, c_row;
         for (int j = 0; j < 101; j++) {
-            float t0 = -10 + i * 0.2f;
-            float t1 = -1.0f + j * 0.05f;
-            vector<float> t {t0, t1};
+            VectorXd t(2);
+            t << -10 + i * 0.2f, -1.0f + j * 0.05f;
             float cost = computeCost(X, y, t, size);
-            a_row.push_back(t0);
-            b_row.push_back(t1);
+            a_row.push_back(t(0));
+            b_row.push_back(t(1));
             c_row.push_back(cost);
         }
         a.push_back(a_row);
@@ -113,7 +87,7 @@ int ex1a() {
     plt::xlabel_u(L"\u03b8\u2080");
     plt::ylabel_u(L"\u03b8\u2081");
     plt::set_zlabel_u(L"J(\u03b8)");
-    plt::show();*/
+    plt::show();
 
     return 0;
 }

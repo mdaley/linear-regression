@@ -1,11 +1,60 @@
-//
-// Created by Matthew Daley on 05/05/2020.
-//
-
 #include "utils.h"
 
 using namespace std;
 using namespace Eigen;
+
+vector<string_view> splitString(const string_view strv, const string_view delims) {
+    vector<string_view> output;
+    size_t first = 0;
+
+    while (first < strv.size())
+    {
+        const auto second = strv.find_first_of(delims, first);
+
+        if (first != second)
+            output.emplace_back(strv.substr(first, second - first));
+
+        if (second == std::string_view::npos)
+            break;
+
+        first = second + 1;
+    }
+
+    return output;
+}
+
+MatrixXd parseCsv(string filename) {
+    ifstream file = ifstream(filename);
+
+    if (!file.good()) {
+        throw invalid_argument("file invalid: " + filename);
+    }
+
+    string line;
+    vector<vector<double>> vectors;
+    while(getline(file, line)) {
+        vector<string_view> values = splitString(line, ",");
+        vector<double> v(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            v[i] = stod(string(values.at(i)));
+        }
+
+        vectors.emplace_back(v);
+    }
+
+    int rows = vectors.size();
+    int cols = vectors[0].size();
+
+    MatrixXd m(rows, cols);
+
+    for(int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++ ) {
+            m(i, j) = vectors[i][j];
+        }
+    }
+
+    return m;
+}
 
 VectorXd standardDeviations(MatrixXd& m) {
     VectorXd means = m.colwise().mean();
@@ -24,6 +73,29 @@ double computeCost(MatrixXd& X, VectorXd& y,  VectorXd& theta, int size) {
     VectorXd X_Theta_minus_y = X_Theta - y;
     double vm = X_Theta_minus_y.transpose() * X_Theta_minus_y;
     return vm / (2.0 * size);
+}
+
+void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, MatrixXd &thetaHistory) {
+    for (int i = 0; i < iterations; i++) {
+
+        VectorXd h(size);
+        h = X * theta;
+
+        double f = alpha / size;
+
+        VectorXd h_y(size);
+        h_y = h - y;
+
+        float cost = computeCost(X, y, theta, size);
+
+        cout << "Cost = " << cost << endl;
+
+        for (int j = 0; j < theta.size(); j++) {
+            theta[j] -= f * (h_y.array() * X.col(j).array()).sum();
+        }
+
+        thetaHistory.row(i) = theta;
+    }
 }
 
 /*#include <cfloat>

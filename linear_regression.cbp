@@ -74,16 +74,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/CSV.cpp">
-			<Option target="linear_regression"/>
-		</Unit>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/CSV.h">
-			<Option target="linear_regression"/>
-		</Unit>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/Data.cpp">
-			<Option target="linear_regression"/>
-		</Unit>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/Data.h">
+		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/include/matplotlibcpp.h">
 			<Option target="linear_regression"/>
 		</Unit>
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/ex1a.cpp">
@@ -99,9 +90,6 @@
 			<Option target="linear_regression"/>
 		</Unit>
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/main.cpp">
-			<Option target="linear_regression"/>
-		</Unit>
-		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/matplotlibcpp.h">
 			<Option target="linear_regression"/>
 		</Unit>
 		<Unit filename="/Users/mdaley/workspace/clion/linear-regression/src/utils.cpp">
