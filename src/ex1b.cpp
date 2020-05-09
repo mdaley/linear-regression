@@ -3,7 +3,6 @@
 //
 
 #include "ex1b.h"
-#include "utils.h"
 
 using namespace Eigen;
 

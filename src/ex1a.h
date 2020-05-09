@@ -6,6 +6,7 @@
 #include "Data.h"
 #include "matplotlibcpp.h"
 #include "utils.h"
+#include <Eigen/Dense>
 
 int ex1a();
 

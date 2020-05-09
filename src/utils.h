@@ -8,6 +8,8 @@ using namespace Eigen;
 
 VectorXd standardDeviations(MatrixXd& m);
 
+double computeCost(MatrixXd& X, VectorXd& y, VectorXd& theta, int size);
+
 /*#include <iostream>
 #include <iomanip>
 #include <vector>

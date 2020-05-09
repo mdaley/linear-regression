@@ -19,6 +19,13 @@ VectorXd standardDeviations(MatrixXd& m) {
     return sds.matrix();
 }
 
+double computeCost(MatrixXd& X, VectorXd& y,  VectorXd& theta, int size) {
+    VectorXd X_Theta = X * theta;
+    VectorXd X_Theta_minus_y = X_Theta - y;
+    double vm = X_Theta_minus_y.transpose() * X_Theta_minus_y;
+    return vm / (2.0 * size);
+}
+
 /*#include <cfloat>
 #include "utils.h"
 
