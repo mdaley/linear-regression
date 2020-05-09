@@ -36,7 +36,6 @@
 #  define PyString_FromString PyUnicode_FromString
 #endif
 
-
 namespace matplotlibcpp {
 namespace detail {
 
@@ -1238,6 +1237,8 @@ bool named_plot(const std::string& name, const std::vector<Numeric>& y, const st
 template<typename Numeric>
 bool named_plot(const std::string& name, const std::vector<Numeric>& x, const std::vector<Numeric>& y, const std::string& format = "")
 {
+    detail::_interpreter::get();
+
     PyObject* kwargs = PyDict_New();
     PyDict_SetItem(kwargs, PyString_FromString("label"), PyString_FromString(name.c_str()));
 

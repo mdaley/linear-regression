@@ -85,10 +85,23 @@ int ex1b() {
     //vector<double> costs_v = costsByAlpha.at(0).second;
 
     for (pair<string, vector<double>> costByAlpha : costsByAlpha) {
-        map<string, string> settings;
-        //settings.insert(pair<string, string>("label", costByAlpha.first));
         plt::named_plot(costByAlpha.first, iterations_v, costByAlpha.second);
     }
+
+    VectorXd scaledTheta(theta.size());
+    for (int i = 0; i < theta.size(); i++) {
+        scaledTheta[i] = costsByAlpha[2].second[i];
+    }
+
+    cout << "Theta (scaled) after regression for alpha " << costsByAlpha[2].first << " = " << scaledTheta.transpose() << endl;
+
+
+    MatrixXd X_unscaled(data.rows(), data.cols());
+    X_unscaled << VectorXd::Ones(data.rows()), data.leftCols(data.cols() - 1);
+    auto calcTheta = ((X_unscaled.transpose() * X_unscaled).inverse() * X_unscaled.transpose()) * y;
+
+    cout << "Calculated theta " << calcTheta.transpose() << endl;
+
     plt::ylabel_u(L"J(\u03b8)");
     plt::xlabel("Number of iterations");
     plt::title("Convergence\n");
