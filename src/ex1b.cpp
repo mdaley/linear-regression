@@ -1,18 +1,33 @@
 #include "ex1b.h"
 
 using namespace Eigen;
+namespace plt = matplotlibcpp;
 
 using namespace std;
+
+VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, int size) {
+    VectorXd theta(3);
+    theta << 0.0, 0.0, 0.0;
+
+    MatrixXd thetaHistory(iterations, theta.size());
+
+    gradientDescent(X, y, theta, alpha, iterations, size, thetaHistory);
+
+    VectorXd costs = computeCosts(X, y, thetaHistory, size);
+
+    return costs;
+}
 
 int ex1b() {
     cout << "Multiple variable linear regression..." << endl;
 
     MatrixXd data = parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1b_data.csv");
 
-    cout <<" DATA" << endl << data << endl;
+    cout << " DATA" << endl << data << endl;
 
     MatrixXd _X = data.leftCols(data.cols() - 1);
     VectorXd y = data.rightCols(1);
+    int size = data.rows();
 
     VectorXd means = _X.colwise().mean();
 
@@ -26,7 +41,7 @@ int ex1b() {
 
     cout << "STANDARD DEVIATIONS " << endl << sds.transpose() << endl;
 
-    for(int i = 0; i < _X.cols(); i++) {
+    for (int i = 0; i < _X.cols(); i++) {
         _X.col(i) /= sds[i];
     }
 
@@ -38,29 +53,46 @@ int ex1b() {
     cout << "X " << endl << X << endl;
 
     cout << "y " << endl << y.transpose() << endl;
-    /*
-    Matrix x = columnsSubMatrix(data, 0, 1);
-    Vector y = columnOfMatrix(data, 2);
-    Matrix X(x.size());
-    for (int i = 0; i < x.size(); i++) {
-        X[i] = Vector(x[i].size() + 1);
-        X[i][0] = 1.0f;
-        for (int j = 0; j < x[i].size(); j++) {
-            X[i][j + 1] = x[i][j];
-        }
+
+    VectorXd theta(3);
+    theta << 0.0, 0.0, 0.0;
+
+    cout << "Initial cost = " << computeCost(X, y, theta, size) << endl;
+
+    //double alpha = 0.03;
+    int iterations = 100;
+
+    vector<pair<string, vector<double>>> costsByAlpha;
+
+    for (string alpha : {"0.01", "0.03", "0.1", "0.3", "1.0"}) {
+        double alpha_d = stod(alpha);
+        VectorXd costs = costsForAlpha(X, y, alpha_d, iterations, size);
+        pair<string, vector<double>> p;
+        p.first = alpha;
+        p.second = vector<double>(costs.data(), costs.data() + costs.size());
+        costsByAlpha.push_back(p);
     }
 
-    cout << "X" << endl;
-    printMatrix(X);
+    vector<double> iterations_v;
+    for (int i = 0; i < iterations; i++) {
+        iterations_v.push_back((double) i);
+    }
 
-    printVector(y);
+    //vector<double> costs_v = vector<double>(costs.data(), costs.data() + costs.size());
 
-    Vector theta(3);
+    cout << "iterations count " << iterations_v.size() << endl;
+    //cout << "costs count " << costs_v.size() << endl;
+    //vector<double> costs_v = costsByAlpha.at(0).second;
 
-    cout << "X_thata" << endl;
-    Matrix X_theta = multiply(X, theta);
-
-    printMatrix(X_theta);*/
+    for (pair<string, vector<double>> costByAlpha : costsByAlpha) {
+        map<string, string> settings;
+        settings.insert(pair<string, string>("label", costByAlpha.first));
+        plt::plot(iterations_v, costByAlpha.second);
+    }
+    plt::ylabel_u(L"J(\u03b8)");
+    plt::xlabel("Number of iterations");
+    plt::title("Convergence\n");
+    plt::show();
     return 0;
 }
 

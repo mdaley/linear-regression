@@ -17,6 +17,8 @@ VectorXd standardDeviations(MatrixXd& m);
 
 double computeCost(MatrixXd& X, VectorXd& y, VectorXd& theta, int size);
 
+VectorXd computeCosts(MatrixXd& X, VectorXd& y,  MatrixXd& thetas, int size);
+
 void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, MatrixXd &thetaHistory);
 
 #endif //LINEAR_REGRESSION_UTILS_H

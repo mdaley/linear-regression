@@ -75,6 +75,13 @@ double computeCost(MatrixXd& X, VectorXd& y,  VectorXd& theta, int size) {
     return vm / (2.0 * size);
 }
 
+VectorXd computeCosts(MatrixXd& X, VectorXd& y,  MatrixXd& thetas, int size) {
+    MatrixXd X_Theta = X * thetas.transpose();
+    MatrixXd X_Theta_minus_y = X_Theta.colwise().operator-=(y);
+    VectorXd vm = (X_Theta_minus_y.transpose() * X_Theta_minus_y).diagonal();
+    return vm / (2.0 * size);
+}
+
 void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, MatrixXd &thetaHistory) {
     for (int i = 0; i < iterations; i++) {
 
