@@ -3,7 +3,7 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
-void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, vector<VectorXd> &thetaHistory) {
+void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, int iterations, int size, MatrixXd &thetaHistory) {
     for (int i = 0; i < iterations; i++) {
 
         VectorXd h(size);
@@ -22,7 +22,7 @@ void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, 
             theta[j] -= f * (h_y.array() * X.col(j).array()).sum();
         }
 
-        thetaHistory.push_back(theta);
+        thetaHistory.row(i) = theta;
     }
 }
 
@@ -53,16 +53,14 @@ int ex1a() {
     cout << "Initial cost = " << initialCost << endl;
 
     int iterations = 1500;
-    vector<VectorXd> thetaHistory;
+    MatrixXd thetaHistory(iterations, theta.size());
 
     gradientDescent(X, y, theta, 0.01, iterations, size, thetaHistory);
 
-    cout << "Theta is " << theta.transpose() << endl;
+    cout << "Theta after gradient descent = " << theta.transpose() << endl;
 
     VectorXd finalY(size);
     finalY = X * theta;
-
-    cout << "Final Y " << finalY.transpose() << endl;
 
     vector<double> x_v = vector<double>(x.data(), x.data() + x.size());
     vector<double> y_v = vector<double>(y.data(), y.data() + y.size());
@@ -73,36 +71,13 @@ int ex1a() {
     plt::xlabel("Population of city in 10,000s");
     plt::title("Linear regression\n");
     plt::show();
+
+    MatrixXd thetaMinMax(2, theta.size());
+    thetaMinMax.row(0) = thetaHistory.colwise().minCoeff();
+    thetaMinMax.row(1) = thetaHistory.colwise().maxCoeff();
+
+    cout << "Theta min / max =" << endl << thetaMinMax << endl;
     /*
-
-    // create y points using final theta and the x points
-    Vector yFinal(size);
-    for (int i = 0; i < size; i++) {
-        yFinal[i] = X[0][i] * theta[0] + X[1][i] * theta[1];
-    }
-
-    // theta history
-    float theta0min = numeric_limits<float>::max();
-    float theta0max = numeric_limits<float>::min();
-    float theta1min = numeric_limits<float>::max();
-    float theta1max = numeric_limits<float>::min();
-    for (int i = 0; i < iterations; i++) {
-        theta0min = thetaHistory[0][i] < theta0min ? thetaHistory[0][i] : theta0min;
-        theta0max = thetaHistory[0][i] > theta0max ? thetaHistory[0][i] : theta0max;
-        theta1min = thetaHistory[1][i] < theta1min ? thetaHistory[1][i] : theta1min;
-        theta1max = thetaHistory[1][i] > theta1max ? thetaHistory[1][i] : theta1max;
-    }
-
-    cout << theta0min << " <= theta[0] >= " << theta0max << endl;
-    cout << theta1min << " <= theta[1] >= " << theta1max << endl;
-
-    // display a graph of the results
-    plt::scatter(x, y, 5.0f);
-    plt::plot(x, yFinal, "r-");
-    plt::ylabel("Profit in $10,000s");
-    plt::xlabel("Population of city in 10,000s");
-    plt::title("Linear regression\n");
-    plt::show();
 
     // display a surface graph of cost for different values of theta
     Matrix a, b, c;
