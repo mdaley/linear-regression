@@ -1239,7 +1239,7 @@ template<typename Numeric>
 bool named_plot(const std::string& name, const std::vector<Numeric>& x, const std::vector<Numeric>& y, const std::string& format = "")
 {
     PyObject* kwargs = PyDict_New();
-    PyDict_SetItemString(kwargs, "label", PyString_FromString(name.c_str()));
+    PyDict_SetItem(kwargs, PyString_FromString("label"), PyString_FromString(name.c_str()));
 
     PyObject* xarray = detail::get_array(x);
     PyObject* yarray = detail::get_array(y);

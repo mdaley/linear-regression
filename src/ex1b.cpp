@@ -86,12 +86,13 @@ int ex1b() {
 
     for (pair<string, vector<double>> costByAlpha : costsByAlpha) {
         map<string, string> settings;
-        settings.insert(pair<string, string>("label", costByAlpha.first));
-        plt::plot(iterations_v, costByAlpha.second);
+        //settings.insert(pair<string, string>("label", costByAlpha.first));
+        plt::named_plot(costByAlpha.first, iterations_v, costByAlpha.second);
     }
     plt::ylabel_u(L"J(\u03b8)");
     plt::xlabel("Number of iterations");
     plt::title("Convergence\n");
+    plt::legend();
     plt::show();
     return 0;
 }
