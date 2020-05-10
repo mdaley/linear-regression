@@ -95,12 +95,13 @@ void gradientDescent(MatrixXd& X,  VectorXd& y,  VectorXd &theta, double alpha, 
 
         float cost = computeCost(X, y, theta, size);
 
-        cout << "Cost = " << cost << endl;
+        //cout << "Cost = " << cost << endl;
 
         for (int j = 0; j < theta.size(); j++) {
             theta[j] -= f * (h_y.array() * X.col(j).array()).sum();
         }
 
+        //cout << "Theta: " << theta.transpose() << endl;
         thetaHistory.row(i) = theta;
     }
 }

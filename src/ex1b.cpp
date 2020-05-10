@@ -5,7 +5,7 @@ namespace plt = matplotlibcpp;
 
 using namespace std;
 
-VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, int size) {
+VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, int size, VectorXd& calcTheta) {
     VectorXd theta(3);
     theta << 0.0, 0.0, 0.0;
 
@@ -15,6 +15,7 @@ VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, i
 
     VectorXd costs = computeCosts(X, y, thetaHistory, size);
 
+    calcTheta = theta;
     return costs;
 }
 
@@ -22,8 +23,6 @@ int ex1b() {
     cout << "Multiple variable linear regression..." << endl;
 
     MatrixXd data = parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1b_data.csv");
-
-    cout << " DATA" << endl << data << endl;
 
     MatrixXd _X = data.leftCols(data.cols() - 1);
     VectorXd y = data.rightCols(1);
@@ -59,14 +58,16 @@ int ex1b() {
 
     cout << "Initial cost = " << computeCost(X, y, theta, size) << endl;
 
-    //double alpha = 0.03;
     int iterations = 100;
 
     vector<pair<string, vector<double>>> costsByAlpha;
+    vector<VectorXd> calculatedThetas;
 
     for (string alpha : {"0.01", "0.03", "0.1", "0.3", "1.0"}) {
         double alpha_d = stod(alpha);
-        VectorXd costs = costsForAlpha(X, y, alpha_d, iterations, size);
+        VectorXd calcTheta(3);
+        VectorXd costs = costsForAlpha(X, y, alpha_d, iterations, size, calcTheta);
+        calculatedThetas.push_back(calcTheta);
         pair<string, vector<double>> p;
         p.first = alpha;
         p.second = vector<double>(costs.data(), costs.data() + costs.size());
@@ -78,29 +79,30 @@ int ex1b() {
         iterations_v.push_back((double) i);
     }
 
-    //vector<double> costs_v = vector<double>(costs.data(), costs.data() + costs.size());
-
     cout << "iterations count " << iterations_v.size() << endl;
-    //cout << "costs count " << costs_v.size() << endl;
-    //vector<double> costs_v = costsByAlpha.at(0).second;
 
     for (pair<string, vector<double>> costByAlpha : costsByAlpha) {
         plt::named_plot(costByAlpha.first, iterations_v, costByAlpha.second);
     }
 
-    VectorXd scaledTheta(theta.size());
-    for (int i = 0; i < theta.size(); i++) {
-        scaledTheta[i] = costsByAlpha[2].second[i];
-    }
+    VectorXd scaledTheta = calculatedThetas[4];
+    string scaledAlpha = costsByAlpha[4].first;
+    VectorXd scaledHouse(3);
+    scaledHouse << 1.0, (1650.0 - means[0]) / sds[0], (3.0 - means[1]) / sds[1];
+    double scaledPrice = scaledHouse.transpose() * scaledTheta;
 
-    cout << "Theta (scaled) after regression for alpha " << costsByAlpha[2].first << " = " << scaledTheta.transpose() << endl;
-
+    cout << "Scaled theta (alpha " << scaledAlpha << ") = " << scaledTheta.transpose() << endl;
+    cout << "House price (scaled approach) " << scaledPrice << endl;
 
     MatrixXd X_unscaled(data.rows(), data.cols());
     X_unscaled << VectorXd::Ones(data.rows()), data.leftCols(data.cols() - 1);
-    auto calcTheta = ((X_unscaled.transpose() * X_unscaled).inverse() * X_unscaled.transpose()) * y;
+    VectorXd calcTheta = ((X_unscaled.transpose() * X_unscaled).inverse() * X_unscaled.transpose()) * y;
+    VectorXd house(3);
+    house << 1.0, 1650.0, 3.0;
+    double calcPrice = house.transpose() * calcTheta;
 
     cout << "Calculated theta " << calcTheta.transpose() << endl;
+    cout << "Calculated theta: price = " << calcPrice << endl;
 
     plt::ylabel_u(L"J(\u03b8)");
     plt::xlabel("Number of iterations");
@@ -109,4 +111,3 @@ int ex1b() {
     plt::show();
     return 0;
 }
-
