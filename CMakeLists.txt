@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(linear_regression)
+project(ml)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY   ${PROJECT_SOURCE_DIR}/build)
@@ -13,7 +13,7 @@ message("Python_LIBRARIES:${Python_LIBRARIES}")
 message("Python_INCLUDE_DIRS:${Python_INCLUDE_DIRS}")
 message("Python_NumPy_INCLUDE_DIRS:${Python_NumPy_INCLUDE_DIRS}")
 
-add_executable(linear_regression src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h)
+add_executable(ml src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h)
 
-target_include_directories(linear_regression PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} include)
-target_link_libraries(linear_regression ${Python_LIBRARIES})
+target_include_directories(ml PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} include)
+target_link_libraries(ml ${Python_LIBRARIES})
