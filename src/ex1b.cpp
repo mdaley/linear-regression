@@ -22,7 +22,7 @@ VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, i
 int ex1b() {
     cout << "Multiple variable linear regression..." << endl;
 
-    MatrixXd data = parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1b_data.csv");
+    MatrixXd data = parseCsv("data/ex1b.csv");
 
     MatrixXd _X = data.leftCols(data.cols() - 1);
     VectorXd y = data.rightCols(1);

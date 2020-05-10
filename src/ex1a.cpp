@@ -6,7 +6,7 @@ namespace plt = matplotlibcpp;
 int ex1a() {
     cout << "Single variable linear regression..." << endl;
 
-    MatrixXd data = parseCsv("/Users/mdaley/workspace/clion/linear-regression/ex1a_data.csv");
+    MatrixXd data = parseCsv("data/ex1a.csv");
 
     int size = data.rows();
 
