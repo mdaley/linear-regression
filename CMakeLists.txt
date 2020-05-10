@@ -13,7 +13,7 @@ message("Python_LIBRARIES:${Python_LIBRARIES}")
 message("Python_INCLUDE_DIRS:${Python_INCLUDE_DIRS}")
 message("Python_NumPy_INCLUDE_DIRS:${Python_NumPy_INCLUDE_DIRS}")
 
-add_executable(ml src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h)
+add_executable(ml src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h src/ex2a.cpp src/ex2a.h)
 
 target_include_directories(ml PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} include)
 target_link_libraries(ml ${Python_LIBRARIES})

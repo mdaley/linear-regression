@@ -6,5 +6,4 @@
 
 int ex1b();
 
-
 #endif //LINEAR_REGRESSION_EX1B_H
