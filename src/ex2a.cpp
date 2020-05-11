@@ -36,5 +36,20 @@ int ex2a() {
     plt::legend();
     plt::show();
 
+    int size = data.rows();
+
+    MatrixXd X(size, data.cols());
+    X << MatrixXd::Ones(size, 1), data.leftCols(data.cols() - 1);
+
+    VectorXd y(data.rightCols(1));
+
+    VectorXd initialTheta(VectorXd::Zero(X.cols()));
+
+    VectorXd gradient(initialTheta.size());
+    double initial_cost = computeLogisticRegressionCost(X, y, initialTheta, gradient);
+
+    cout << "Initial cost = " << initial_cost << endl;
+    cout << "Initial gradient = " << gradient.transpose() << endl;
+
     return 0;
 }
