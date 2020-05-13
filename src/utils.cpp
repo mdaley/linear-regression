@@ -2,9 +2,10 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace dlib;
 
-vector<string_view> splitString(const string_view strv, const string_view delims) {
-    vector<string_view> output;
+std::vector<string_view> splitString(const string_view strv, const string_view delims) {
+    std::vector<string_view> output;
     size_t first = 0;
 
     while (first < strv.size())
@@ -31,10 +32,10 @@ MatrixXd parseCsv(string filename) {
     }
 
     string line;
-    vector<vector<double>> vectors;
+    std::vector<std::vector<double>> vectors;
     while(getline(file, line)) {
-        vector<string_view> values = splitString(line, ",");
-        vector<double> v(values.size());
+        std::vector<string_view> values = splitString(line, ",");
+        std::vector<double> v(values.size());
         for (int i = 0; i < values.size(); i++) {
             v[i] = stod(string(values.at(i)));
         }
@@ -46,6 +47,39 @@ MatrixXd parseCsv(string filename) {
     int cols = vectors[0].size();
 
     MatrixXd m(rows, cols);
+
+    for(int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++ ) {
+            m(i, j) = vectors[i][j];
+        }
+    }
+
+    return m;
+}
+
+matrix<double> parseCsvDlib(string filename) {
+    ifstream file = ifstream(filename);
+
+    if (!file.good()) {
+        throw invalid_argument("file invalid: " + filename);
+    }
+
+    string line;
+    std::vector<std::vector<double>> vectors;
+    while(getline(file, line)) {
+        std::vector<string_view> values = splitString(line, ",");
+        std::vector<double> v(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            v[i] = stod(string(values.at(i)));
+        }
+
+        vectors.emplace_back(v);
+    }
+
+    int rows = vectors.size();
+    int cols = vectors[0].size();
+
+    matrix<double> m(rows, cols);
 
     for(int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++ ) {
@@ -147,6 +181,21 @@ double computeLogisticRegressionCost(MatrixXd& X, VectorXd& y, VectorXd& theta, 
     double cost = s / size;
 
     gradient = ((H - y).transpose() * X) / size;
+
+    return cost;
+}
+
+double computeLogisticRegressionCostDlib(matrix<double>& X, column_vector& y, column_vector& theta, column_vector& gradient) {
+    column_vector theta_X = X * theta;
+    column_vector H = dlib::sigmoid(theta_X);
+
+    long size = X.nr();
+
+    double s = ((trans(y) * -1) * log(H)) - ((1 - trans(y)) * log(1 - H));
+
+    double cost = s / size;
+
+    gradient = (trans(H - y) * X) / size;
 
     return cost;
 }

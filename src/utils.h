@@ -7,11 +7,17 @@
 #include <vector>
 #include <string_view>
 #include <Eigen/Dense>
+#include <dlib/matrix.h>
 
 using namespace std;
-using namespace Eigen;
+using namespace Eigen;\
+using namespace dlib;
+
+typedef matrix<double,0,1> column_vector;
 
 MatrixXd parseCsv(string filename);
+
+matrix<double> parseCsvDlib(string filename);
 
 VectorXd standardDeviations(MatrixXd& m);
 
@@ -28,5 +34,7 @@ MatrixXd sigmoid(MatrixXd& z);
 VectorXd sigmoid(VectorXd& z);
 
 double computeLogisticRegressionCost(MatrixXd& X, VectorXd& y, VectorXd& theta, VectorXd& gradient);
+
+double computeLogisticRegressionCostDlib(matrix<double>& X, column_vector& y, column_vector& theta, column_vector& gradient);
 
 #endif //LINEAR_REGRESSION_UTILS_H

@@ -3,6 +3,8 @@
 
 #include "matplotlibcpp.h"
 #include "utils.h"
+#include <dlib/optimization.h>
+#include <dlib/global_optimization.h>
 
 int ex2a();
 

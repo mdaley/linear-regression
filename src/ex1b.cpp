@@ -60,28 +60,28 @@ int ex1b() {
 
     int iterations = 100;
 
-    vector<pair<string, vector<double>>> costsByAlpha;
-    vector<VectorXd> calculatedThetas;
+    std::vector<pair<string, std::vector<double>>> costsByAlpha;
+    std::vector<VectorXd> calculatedThetas;
 
     for (string alpha : {"0.01", "0.03", "0.1", "0.3", "1.0"}) {
         double alpha_d = stod(alpha);
         VectorXd calcTheta(3);
         VectorXd costs = costsForAlpha(X, y, alpha_d, iterations, size, calcTheta);
         calculatedThetas.push_back(calcTheta);
-        pair<string, vector<double>> p;
+        pair<string, std::vector<double>> p;
         p.first = alpha;
-        p.second = vector<double>(costs.data(), costs.data() + costs.size());
+        p.second = std::vector<double>(costs.data(), costs.data() + costs.size());
         costsByAlpha.push_back(p);
     }
 
-    vector<double> iterations_v;
+    std::vector<double> iterations_v;
     for (int i = 0; i < iterations; i++) {
         iterations_v.push_back((double) i);
     }
 
     cout << "iterations count " << iterations_v.size() << endl;
 
-    for (pair<string, vector<double>> costByAlpha : costsByAlpha) {
+    for (pair<string, std::vector<double>> costByAlpha : costsByAlpha) {
         plt::named_plot(costByAlpha.first, iterations_v, costByAlpha.second);
     }
 

@@ -39,9 +39,9 @@ int ex1a() {
     VectorXd finalY(size);
     finalY = X * theta;
 
-    vector<double> x_v = vector<double>(x.data(), x.data() + x.size());
-    vector<double> y_v = vector<double>(y.data(), y.data() + y.size());
-    vector<double> finalY_v = vector<double>(finalY.data(), finalY.data() + finalY.size());
+    std::vector<double> x_v = std::vector<double>(x.data(), x.data() + x.size());
+    std::vector<double> y_v = std::vector<double>(y.data(), y.data() + y.size());
+    std::vector<double> finalY_v = std::vector<double>(finalY.data(), finalY.data() + finalY.size());
     plt::scatter(x_v, y_v, 5.0f);
     plt::plot(x_v, finalY_v, "r-");
     plt::ylabel("Profit in $10,000s");
@@ -55,10 +55,10 @@ int ex1a() {
 
     cout << "Theta min / max =" << endl << thetaMinMax << endl;
 
-    vector<vector<double>> a, b, c;
+    std::vector<std::vector<double>> a, b, c;
 
     for (int i = 0; i < 101; i++) {
-        vector<double> a_row, b_row, c_row;
+        std::vector<double> a_row, b_row, c_row;
         for (int j = 0; j < 101; j++) {
             VectorXd t(2);
             t << -10 + i * 0.2f, -1.0f + j * 0.05f;
@@ -72,7 +72,7 @@ int ex1a() {
         c.push_back(c_row);
     }
 
-    map<string, plt::SettingValue> settings;
+    std::map<string, plt::SettingValue> settings;
 
     settings.insert({"edgecolor", plt::SettingValue(string("black"))});
     settings.insert({"linewidth", plt::SettingValue(2.0f)});
