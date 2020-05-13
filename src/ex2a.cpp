@@ -21,16 +21,6 @@ int ex2a() {
         }
     }
 
-    plt::scatter(admittedExam1, admittedExam2, 10.0f,
-            {{"label", "admitted"}, {"color", "green"}, {"marker", "^"}});
-    plt::scatter(notAdmittedExam1, notAdmittedExam2, 10.0f,
-            {{"label", "not admitted"}, {"color", "red"}, {"marker", "o"}});
-    plt::ylabel("Exam 2 score");
-    plt::xlabel("Exam 1 score");
-    plt::title("Admissions and exam results\n");
-    plt::legend();
-    plt::show();
-
     int size = data.nr();
 
     matrix<double> X(size, data.nc());
@@ -80,6 +70,25 @@ int ex2a() {
     column_vector student = {1, 45, 85};
     cout << "Admission probability for student with Exam 1 = 45, Exam 2 = 85 is "
             << sigmoid(trans(theta) * student) << endl;
+
+
+    // plot decision boundary
+    std::vector<double> e1(8), e2(8);
+    for (int i = 0; i < 8; i++) {
+        e1[i] = (i + 3) * 10;
+        e2[i] = (0.5 - theta(0) - theta(1) * e1[i]) / theta(2);
+    }
+
+    plt::scatter(admittedExam1, admittedExam2, 10.0f,
+                 {{"label", "admitted"}, {"color", "green"}, {"marker", "^"}});
+    plt::scatter(notAdmittedExam1, notAdmittedExam2, 10.0f,
+                 {{"label", "not admitted"}, {"color", "red"}, {"marker", "o"}});
+    plt::plot(e1, e2, "blue"); // boundary
+    plt::ylabel("Exam 2 score");
+    plt::xlabel("Exam 1 score");
+    plt::title("Admissions and exam results\n");
+    plt::legend();
+    plt::show();
 
     return 0;
 }
