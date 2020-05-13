@@ -22,7 +22,7 @@ Original points with line of best fit generated using linear regression:
 
 Cost against values of Theta:
 
-![linear regression chart](https://github.com/mdaley/ml/raw/master/images/ex1a-2.png)
+![linear regression chart2](https://github.com/mdaley/ml/raw/master/images/ex1a-2.png)
 
 ## Exercise 1b - linear regression with multiple variables
 
@@ -48,3 +48,4 @@ _lambda_ correction factor alter the extent to which the results _fit_ the data.
 complex boundary, lambda = 1 seems more reasonable, lambda = 100 seems to be rather offset. (the boundaries
 are made using scatter plots as the graphing library can't mathematically plot such complex shapes).
 
+![logistic_regression2](https://github.com/mdaley/ml/raw/master/images/ex2b.png)
