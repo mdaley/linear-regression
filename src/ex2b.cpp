@@ -34,22 +34,32 @@ int ex2b() {
 
     column_vector y(colm(data, 2));
 
-    auto costFn = [X, y](const column_vector& theta) -> double {
+    double lambda = 1;
+
+    auto costFn = [X, y, lambda](const column_vector& theta) -> double {
         column_vector H = dlib::sigmoid(X * theta);
         double s = ((trans(y) * -1) * log(H)) - ((1 - trans(y)) * log(1 - H));
         double cost = s / X.nr();
 
+        // add lambda
+        cost += (lambda / (2 * X.nr())) * sum(theta);
+
         // if the log function has zero input, it returns NaN. And H can easily be 1 or zero.
         // So, if that happens return a high cost to warn off the minimisation algorithm!
         if (!is_finite(cost))
-            return 1000.0;
+            return numeric_limits<double>::max();
 
         return cost;
     };
 
-    auto derivativeFn = [X, y] (const column_vector& theta) -> column_vector {
+    auto derivativeFn = [X, y, lambda] (const column_vector& theta) -> column_vector {
         column_vector H = dlib::sigmoid(X * theta);
         column_vector derivative = trans((trans(H - y) * X) / X.nr());
+
+        // add lambda
+        column_vector thetaZero(theta);
+        thetaZero(0) = 0;
+        derivative += thetaZero * (lambda / X.nr());
 
         return derivative;
     };
@@ -72,18 +82,12 @@ int ex2b() {
     cout << "Final theta " << trans(theta);
     cout << "Final cost = " << costFn(theta) << endl;
 
-    cout << "Test 1 range " << min(colm(_X, 0)) << " - " << max(colm(_X, 0)) << endl;
-    cout << "Test 2 range " << min(colm(_X, 1)) << " - " << max(colm(_X, 1)) << endl;
-
     double test1min = min(colm(_X, 0));
     double test1max = max(colm(_X, 0));
     double test1range = test1max - test1min;
     double test2min = min(colm(_X, 1));
     double test2max = max(colm(_X, 1));
     double test2range = test2max - test1min;
-
-    cout << test1min << " < test1 > " << test1max << endl;
-    cout << test2min << " < test2 > " << test2max << endl;
 
     // Find all the points on the graph where the probability of acceptance is very close to 0.5
     // by examining a 1000 x 1000 mesh of points across the graph. Joining these up will show the
