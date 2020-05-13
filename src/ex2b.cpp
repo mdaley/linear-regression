@@ -42,7 +42,9 @@ int ex2b() {
         double cost = s / X.nr();
 
         // add lambda
-        cost += (lambda / (2 * X.nr())) * sum(theta);
+        column_vector thetaZero(theta);
+        thetaZero(0) = 0;
+        cost += (lambda / (2 * X.nr())) * sum(squared(theta));
 
         // if the log function has zero input, it returns NaN. And H can easily be 1 or zero.
         // So, if that happens return a high cost to warn off the minimisation algorithm!
@@ -55,7 +57,7 @@ int ex2b() {
     auto derivativeFn = [X, y, lambda] (const column_vector& theta) -> column_vector {
         column_vector H = dlib::sigmoid(X * theta);
         column_vector derivative = trans((trans(H - y) * X) / X.nr());
-
+        ;
         // add lambda
         column_vector thetaZero(theta);
         thetaZero(0) = 0;
@@ -123,7 +125,9 @@ int ex2b() {
     plt::scatter(t1_v, t2_v, 1.0, {{"label", "decision boundary"}, {"color", "black"}}); // boundary
     plt::ylabel("Microchip test 2");
     plt::xlabel("Microchip test 1");
-    plt::title("Microchip acceptance\n");
+    ostringstream os;
+    os << "Microchip acceptance (lambda = " << lambda << ")\n";
+    plt::title(os.str());
     plt::legend();
     plt::show();
 
