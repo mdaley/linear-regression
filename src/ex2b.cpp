@@ -34,100 +34,106 @@ int ex2b() {
 
     column_vector y(colm(data, 2));
 
-    double lambda = 1;
+    std::vector<pair<int, string>> runs = {pair<int, string>(0, "black"),
+            pair<int,string>(1, "green"),
+            pair<int, string>(100, "blue")};
 
-    auto costFn = [X, y, lambda](const column_vector& theta) -> double {
-        column_vector H = dlib::sigmoid(X * theta);
-        double s = ((trans(y) * -1) * log(H)) - ((1 - trans(y)) * log(1 - H));
-        double cost = s / X.nr();
+    for (pair<int, string> run : runs) {
+        double lambda = run.first;
 
-        // add lambda
-        column_vector thetaZero(theta);
-        thetaZero(0) = 0;
-        cost += (lambda / (2 * X.nr())) * sum(squared(theta));
+        auto costFn = [X, y, lambda](const column_vector &theta) -> double {
+            column_vector H = dlib::sigmoid(X * theta);
+            double s = ((trans(y) * -1) * log(H)) - ((1 - trans(y)) * log(1 - H));
+            double cost = s / X.nr();
 
-        // if the log function has zero input, it returns NaN. And H can easily be 1 or zero.
-        // So, if that happens return a high cost to warn off the minimisation algorithm!
-        if (!is_finite(cost))
-            return numeric_limits<double>::max();
+            // add lambda
+            column_vector thetaZero(theta);
+            thetaZero(0) = 0;
+            cost += (lambda / (2 * X.nr())) * sum(squared(theta));
 
-        return cost;
-    };
+            // if the log function has zero input, it returns NaN. And H can easily be 1 or zero.
+            // So, if that happens return a high cost to warn off the minimisation algorithm!
+            if (!is_finite(cost))
+                return numeric_limits<double>::max();
 
-    auto derivativeFn = [X, y, lambda] (const column_vector& theta) -> column_vector {
-        column_vector H = dlib::sigmoid(X * theta);
-        column_vector derivative = trans((trans(H - y) * X) / X.nr());
-        ;
-        // add lambda
-        column_vector thetaZero(theta);
-        thetaZero(0) = 0;
-        derivative += thetaZero * (lambda / X.nr());
+            return cost;
+        };
 
-        return derivative;
-    };
+        auto derivativeFn = [X, y, lambda](const column_vector &theta) -> column_vector {
+            column_vector H = dlib::sigmoid(X * theta);
+            column_vector derivative = trans((trans(H - y) * X) / X.nr());;
+            // add lambda
+            column_vector thetaZero(theta);
+            thetaZero(0) = 0;
+            derivative += thetaZero * (lambda / X.nr());
 
-    column_vector theta(X.nc(), 1);
-    theta = 0;
+            return derivative;
+        };
 
-    cout << "Initial theta = " << trans(theta);
-    cout << "Initial cost = " << costFn(theta) << endl;
+        column_vector theta(X.nc(), 1);
+        theta = 0;
 
-    try {
-        cout << "Finding mimimum..." << endl;
-        find_min(bfgs_search_strategy(),
-                 objective_delta_stop_strategy(1e-7), //.be_verbose(),
-                 costFn, derivativeFn, theta, -1);
-    } catch (std::exception& e) {
-        cout << e.what() << endl;
-    }
+        cout << "Initial theta = " << trans(theta);
+        cout << "Initial cost = " << costFn(theta) << endl;
 
-    cout << "Final theta " << trans(theta);
-    cout << "Final cost = " << costFn(theta) << endl;
-
-    double test1min = min(colm(_X, 0));
-    double test1max = max(colm(_X, 0));
-    double test1range = test1max - test1min;
-    double test2min = min(colm(_X, 1));
-    double test2max = max(colm(_X, 1));
-    double test2range = test2max - test1min;
-
-    // Find all the points on the graph where the probability of acceptance is very close to 0.5
-    // by examining a 1000 x 1000 mesh of points across the graph. Joining these up will show the
-    // decision boundary. Can't work out how to plot as a smooth curve, so show as a scatter plot -
-    // with enough points it looks enough like a line!
-    std::vector<double> t1_v, t2_v;
-    double delta = 0.0025;
-    double test1inc = test1range / 1000;
-    double test2inc = test2range / 1000;
-    double t1 = test1min;
-    double t2 = test2min;
-    for (int i = 0; i < 1001; i++) {
-        for (int j = 0; j < 1001; j++) {
-            column_vector t = {1, t1, t2, pow(t1, 2), pow(t2, 2), pow(t1, 3), pow(t2, 3),
-                                       pow(t1, 4), pow(t2, 4), pow(t1, 5), pow(t2, 5),
-                                       pow(t1, 6), pow(t2, 6)};
-            double v = sigmoid(trans(theta) * t);
-            if (v > 0.5 - delta && v < 0.5 + delta) {
-                t1_v.push_back(t1);
-                t2_v.push_back(t2);
-            }
-            t2 += test2inc;
+        try {
+            cout << "Finding mimimum..." << endl;
+            find_min(bfgs_search_strategy(),
+                     objective_delta_stop_strategy(1e-7), //.be_verbose(),
+                     costFn, derivativeFn, theta, -1);
+        } catch (std::exception &e) {
+            cout << e.what() << endl;
         }
 
-        t1 += test1inc;
-        t2 = test2min;
+        cout << "Final theta " << trans(theta);
+        cout << "Final cost = " << costFn(theta) << endl;
+
+        double test1min = min(colm(_X, 0));
+        double test1max = max(colm(_X, 0));
+        double test1range = test1max - test1min;
+        double test2min = min(colm(_X, 1));
+        double test2max = max(colm(_X, 1));
+        double test2range = test2max - test1min;
+
+        // Find all the points on the graph where the probability of acceptance is very close to 0.5
+        // by examining a 1000 x 1000 mesh of points across the graph. Joining these up will show the
+        // decision boundary. Can't work out how to plot as a smooth curve, so show as a scatter plot -
+        // with enough points it looks enough like a line!
+        std::vector<double> t1_v, t2_v;
+        double delta = (run.first == 100) ? 0.000025 : 0.0025;
+        double test1inc = test1range / 1000;
+        double test2inc = test2range / 1000;
+        double t1 = test1min;
+        double t2 = test2min;
+        for (int i = 0; i < 1001; i++) {
+            for (int j = 0; j < 1001; j++) {
+                column_vector t = {1, t1, t2, pow(t1, 2), pow(t2, 2), pow(t1, 3), pow(t2, 3),
+                                   pow(t1, 4), pow(t2, 4), pow(t1, 5), pow(t2, 5),
+                                   pow(t1, 6), pow(t2, 6)};
+                double v = sigmoid(trans(theta) * t);
+                if (v > 0.5 - delta && v < 0.5 + delta) {
+                    t1_v.push_back(t1);
+                    t2_v.push_back(t2);
+                }
+                t2 += test2inc;
+            }
+
+            t1 += test1inc;
+            t2 = test2min;
+        }
+
+        ostringstream os;
+        os << "boundary (lambda = " << run.first << ")";
+        plt::scatter(t1_v, t2_v, 1.0, {{"label", os.str()}, {"color", run.second}}); // boundary
     }
 
     plt::scatter(acceptedTest1, acceptedTest2, 10.0,
                  {{"label", "accepted"}, {"color", "green"}, {"marker", "^"}});
     plt::scatter(rejectedTest1, rejectedTest2, 10.0,
                  {{"label", "rejected"}, {"color", "red"}, {"marker", "o"}});
-    plt::scatter(t1_v, t2_v, 1.0, {{"label", "decision boundary"}, {"color", "black"}}); // boundary
     plt::ylabel("Microchip test 2");
     plt::xlabel("Microchip test 1");
-    ostringstream os;
-    os << "Microchip acceptance (lambda = " << lambda << ")\n";
-    plt::title(os.str());
+    plt::title("Microchip acceptance");
     plt::legend();
     plt::show();
 
