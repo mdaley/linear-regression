@@ -1,11 +1,11 @@
-#ifndef ML_EX2A_H
-#define ML_EX2A_H
+#ifndef ML_EX2B_H
+#define ML_EX2B_H
 
 #include "matplotlibcpp.h"
 #include "utils.h"
 #include <dlib/optimization.h>
 #include <dlib/global_optimization.h>
 
-int ex2a();
+int ex2b();
 
-#endif //ML_EX2A_H
+#endif //ML_EX2B_H
