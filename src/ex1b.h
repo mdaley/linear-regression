@@ -4,6 +4,6 @@
 #include "matplotlibcpp.h"
 #include "utils.h"
 
-int ex1b();
+int ex1b(const int argc, const char** argv);
 
 #endif //LINEAR_REGRESSION_EX1B_H

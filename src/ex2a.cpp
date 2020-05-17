@@ -4,7 +4,7 @@ using namespace std;
 using namespace dlib;
 namespace plt = matplotlibcpp;
 
-int ex2a() {
+int ex2a(const int argc, const char** argv) {
 
     cout << "Logistic regression..." << endl;
 

@@ -3,7 +3,7 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
-int ex1a() {
+int ex1a(const int argc, const char** argv) {
     cout << "Single variable linear regression..." << endl;
 
     MatrixXd data = parseCsv("data/ex1a.csv");

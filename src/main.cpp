@@ -6,17 +6,22 @@
 
 using namespace std;
 
-int main(int argc, char** argv) {
+std::map<string, function<int (const int argc, const char** argv)>> exercises = {
+        {"1a", ex1a},
+        {"1b", ex1b},
+        {"2a", ex2a},
+        {"2b", ex2b}
+};
+
+int main(const int argc, const char** argv) {
     bool ok = false;
-    if (argc == 2) {
-        if (string("1a").compare(argv[1]) == 0) {
-            return ex1a();
-        } else if (string("1b").compare(argv[1]) == 0) {
-            return ex1b();
-        } else if (string("2a").compare(argv[1]) == 0) {
-            return ex2a();
-        } else if (string("2b").compare(argv[1]) == 0) {
-            return ex2b();
+    if (argc >= 2) {
+        if (exercises.find(argv[1]) != exercises.end()) {
+            ok = true;
+            function<int(const int argc, const char **argv)> fn = exercises.at(argv[1]);
+            fn(argc, argv);
+        } else {
+            cout << "Exercise " << argv[1] << " not found!" << endl;
         }
     }
 

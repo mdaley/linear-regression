@@ -6,6 +6,6 @@
 #include <dlib/optimization.h>
 #include <dlib/global_optimization.h>
 
-int ex2a();
+int ex2a(const int argc, const char** argv);
 
 #endif //ML_EX2A_H

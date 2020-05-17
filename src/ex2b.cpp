@@ -4,7 +4,7 @@ using namespace std;
 using namespace dlib;
 namespace plt = matplotlibcpp;
 
-int ex2b() {
+int ex2b(const int argc, const char** argv) {
     cout << "Multi-variable logistic regression..." << endl;
 
     matrix<double> data = parseCsvDlib("/Users/mdaley/workspace/clion/ml/data/ex2b.csv");

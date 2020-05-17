@@ -19,7 +19,7 @@ VectorXd costsForAlpha(MatrixXd& X, VectorXd& y, double alpha, int iterations, i
     return costs;
 }
 
-int ex1b() {
+int ex1b(const int argc, const char** argv) {
     cout << "Multiple variable linear regression..." << endl;
 
     MatrixXd data = parseCsv("data/ex1b.csv");
