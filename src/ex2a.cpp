@@ -8,7 +8,7 @@ int ex2a(const int argc, const char** argv) {
 
     cout << "Logistic regression..." << endl;
 
-    matrix<double> data = parseCsvDlib("/Users/mdaley/workspace/clion/ml/data/ex2a.csv");
+    matrix<double> data = parseCsvDlib("data/ex2a.csv");
 
     std::vector<double> admittedExam1, admittedExam2, notAdmittedExam1, notAdmittedExam2;
     for (long i = 0; i < data.nr(); i++) {
