@@ -3,6 +3,7 @@
 #include "ex1b.h"
 #include "ex2a.h"
 #include "ex2b.h"
+#include "ex3a.h"
 
 using namespace std;
 
@@ -10,7 +11,8 @@ std::map<string, function<int (const int argc, const char** argv)>> exercises = 
         {"1a", ex1a},
         {"1b", ex1b},
         {"2a", ex2a},
-        {"2b", ex2b}
+        {"2b", ex2b},
+        {"3a", ex3a}
 };
 
 int main(const int argc, const char** argv) {
