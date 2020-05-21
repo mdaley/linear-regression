@@ -4,6 +4,51 @@ using namespace std;
 using namespace Eigen;
 using namespace dlib;
 
+struct mat_t_deleter {
+    void operator()(mat_t *p) {
+        Mat_Close(p);
+    }
+};
+
+struct matvar_deleter {
+    void operator()(matvar_t *p) {
+        Mat_VarFree(p);
+    }
+};
+
+matrix<double> openMatLabData(const string file, const string name) {
+    unique_ptr<mat_t, mat_t_deleter> fp(Mat_Open(file.c_str(), MAT_ACC_RDONLY));
+    if(NULL == fp.get()) {
+        ostringstream os;
+        os << "Couldn't open file " << file;
+        throw error(os.str());
+    }
+
+    unique_ptr<matvar_t, matvar_deleter> value(Mat_VarRead(fp.get(), name.c_str()));
+    if (NULL == value.get()) {
+        ostringstream os;
+        os << "Couldn't extract value " << name << " from " << file;
+        throw error(os.str());
+    }
+
+    int rank = value->rank;
+
+    if (!(rank == 1 || rank == 2)) {
+        throw error("Can only 1 dimensional vector or 2 dimensional matrix");
+    }
+    int rows = value->dims[0];
+    int cols = (rank == 2) ? value->dims[1] : 1;
+    double *data = static_cast<double *>(value->data);
+    matrix<double> m(rows, cols);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            m(i, j) = data[i * cols + j];
+        }
+    }
+
+    return m;
+}
+
 std::vector<string_view> splitString(const string_view strv, const string_view delims) {
     std::vector<string_view> output;
     size_t first = 0;

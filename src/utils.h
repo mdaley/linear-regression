@@ -8,12 +8,15 @@
 #include <string_view>
 #include <Eigen/Dense>
 #include <dlib/matrix.h>
+#include "matio.h"
 
 using namespace std;
 using namespace Eigen;\
 using namespace dlib;
 
 typedef matrix<double,0,1> column_vector;
+
+matrix<double> openMatLabData(const string file, const string name);
 
 MatrixXd parseCsv(string filename);
 
