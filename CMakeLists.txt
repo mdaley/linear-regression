@@ -7,6 +7,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY   ${PROJECT_SOURCE_DIR}/build)
 find_package(Python COMPONENTS Development NumPy)
 find_package(ZLIB REQUIRED)
 find_package(HDF5 REQUIRED CXX)
+find_package(VTK COMPONENTS
+        vtkChartsCore
+        vtkCommonCore
+        vtkCommonDataModel
+        vtkInteractionStyle
+        vtkRenderingContext2D
+        vtkRenderingContextOpenGL2
+        vtkRenderingCore
+        vtkRenderingFreeType
+        vtkRenderingGL2PSOpenGL2
+        vtkRenderingOpenGL2
+        vtkViewsContext2D QUIET)
+if (NOT VTK_FOUND)
+    message("Skipping ScatterPlot: ${VTK_NOT_FOUND_MESSAGE}")
+    return ()
+endif()
 
 include(FetchContent)
 FetchContent_Declare(dlib
@@ -42,10 +58,15 @@ message("ZLIB_LIBRARIES:${ZLIB_LIBRARIES}")
 message("HDF5_VERSION:${HDF5_VERSION}")
 message("HDF5_CXX_INCLUDE_DIRS:${HDF5_CXX_INCLUDE_DIRS}")
 
+message (STATUS "VTK_VERSION: ${VTK_VERSION}")
 
 message("matio_SOURCE_DIR:${matio_SOURCE_DIR}")
 
 add_executable(ml src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h src/ex2a.cpp src/ex2a.h src/ex2b.cpp src/ex2b.h src/ex3a.cpp src/ex3a.h)
 
 target_include_directories(ml PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} /usr/local/include include)
-target_link_libraries(ml ${Python_LIBRARIES} dlib::dlib /usr/local/lib/libmatio.dylib)
+target_link_libraries(ml ${Python_LIBRARIES} dlib::dlib /usr/local/lib/libmatio.dylib ${VTK_LIBRARIES})
+vtk_module_autoinit(
+        TARGETS ml
+        MODULES ${VTK_LIBRARIES}
+)

@@ -39,15 +39,61 @@ int ex1a(const int argc, const char** argv) {
     VectorXd finalY(size);
     finalY = X * theta;
 
-    std::vector<double> x_v = std::vector<double>(x.data(), x.data() + x.size());
-    std::vector<double> y_v = std::vector<double>(y.data(), y.data() + y.size());
-    std::vector<double> finalY_v = std::vector<double>(finalY.data(), finalY.data() + finalY.size());
-    plt::scatter(x_v, y_v, 5.0f);
-    plt::plot(x_v, finalY_v, "r-");
-    plt::ylabel("Profit in $10,000s");
-    plt::xlabel("Population of city in 10,000s");
-    plt::title("Linear regression\n");
-    plt::show();
+    vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
+    view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
+    view->GetRenderWindow()->SetSize(800, 600);
+    view->GetRenderWindow()->SetWindowName("Linear Regression");
+
+    vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+    view->GetScene()->AddItem(chart);
+    chart->SetShowLegend(true);
+    chart->GetLegend()->GetLabelProperties()->SetFontSize(24);
+    chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("Population of city in 10,000s");
+    chart->GetAxis(vtkAxis::LEFT)->SetTitle("Profit in $10,000s");
+    chart->GetAxis(vtkAxis::BOTTOM)->GetLabelProperties()->SetFontSize(20);
+    chart->GetAxis(vtkAxis::BOTTOM)->GetTitleProperties()->SetFontSize(24);
+    chart->GetAxis(vtkAxis::LEFT)->GetLabelProperties()->SetFontSize(20);
+    chart->GetAxis(vtkAxis::LEFT)->GetTitleProperties()->SetFontSize(24);
+    chart->GetTitleProperties()->SetFontSize(32);
+    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
+
+    vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
+    arrX->SetName("x");
+    table->AddColumn(arrX);
+
+    vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
+    arrY->SetName(""); // no label - don't show in legend!
+    table->AddColumn(arrY);
+
+    vtkSmartPointer<vtkFloatArray> arrFinalY = vtkSmartPointer<vtkFloatArray>::New();
+    arrFinalY->SetName("line of best fit");
+    table->AddColumn(arrFinalY);
+
+    table->SetNumberOfRows(size);
+    for (int i = 0; i < size; ++i)
+    {
+        table->SetValue(i, 0, x(i));
+        table->SetValue(i, 1, y(i));
+        table->SetValue(i, 2, finalY(i));
+    }
+
+    vtkPlot *points = chart->AddPlot(vtkChart::POINTS);
+    points->SetInputData(table, 0, 1);
+    points->SetColor(0, 0, 0, 255);
+    points->SetWidth(5.0);
+    dynamic_cast<vtkPlotPoints*>(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
+
+    vtkPlot *lr = chart->AddPlot(vtkChart::LINE);
+    lr->SetInputData(table, 0, 2);
+    lr->SetColor(0, 255, 0, 255);
+    lr->SetWidth(5.0);
+
+    //Finally render the scene
+    view->GetRenderWindow()->SetMultiSamples(0);
+    view->GetRenderWindow()->Render();
+    view->GetRenderWindow()->SetWindowName("Linear Regression"); // has to be after Render!
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
 
     MatrixXd thetaMinMax(2, theta.size());
     thetaMinMax.row(0) = thetaHistory.colwise().minCoeff();
@@ -72,7 +118,7 @@ int ex1a(const int argc, const char** argv) {
         c.push_back(c_row);
     }
 
-    std::map<string, plt::SettingValue> settings;
+    /*std::map<string, plt::SettingValue> settings;
 
     settings.insert({"edgecolor", plt::SettingValue(string("black"))});
     settings.insert({"linewidth", plt::SettingValue(2.0f)});
@@ -87,7 +133,7 @@ int ex1a(const int argc, const char** argv) {
     plt::xlabel_u(L"\u03b8\u2080");
     plt::ylabel_u(L"\u03b8\u2081");
     plt::set_zlabel_u(L"J(\u03b8)");
-    plt::show();
+    plt::show();*/
 
     return 0;
 }
