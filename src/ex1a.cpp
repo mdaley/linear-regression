@@ -35,10 +35,115 @@ int ex1a(const int argc, const char** argv) {
     gradientDescent(X, y, theta, 0.01, iterations, size, thetaHistory);
 
     cout << "Theta after gradient descent = " << theta.transpose() << endl;
+    cout << "Final cost = " << computeCost(X, y, theta, size) << endl;
 
     VectorXd finalY(size);
     finalY = X * theta;
 
+    drawLinearRegressionChart(size, x, y, finalY);
+
+    MatrixXd thetaMinMax(2, theta.size());
+    thetaMinMax.row(0) = thetaHistory.colwise().minCoeff();
+    thetaMinMax.row(1) = thetaHistory.colwise().maxCoeff();
+
+    cout << "Theta min / max =" << endl << thetaMinMax << endl;
+
+    std::vector<std::vector<double>> a, b, c;
+
+    for (int i = 0; i < 101; i++) {
+        std::vector<double> a_row, b_row, c_row;
+        for (int j = 0; j < 101; j++) {
+            VectorXd t(2);
+            t << -10 + i * 0.2f, -1.0f + j * 0.05f;
+            float cost = computeCost(X, y, t, size);
+            a_row.push_back(t(0));
+            b_row.push_back(t(1));
+            c_row.push_back(cost);
+        }
+        a.push_back(a_row);
+        b.push_back(b_row);
+        c.push_back(c_row);
+    }
+
+    vtkNew<vtkNamedColors> colors;
+
+    vtkNew<vtkChartXYZ> chart;
+    chart->SetGeometry(vtkRectf(10.0, 10.0, 800, 600));
+
+    vtkNew<vtkPlotSurface> plot;
+
+    vtkNew<vtkContextView> view;
+    view->GetRenderer()->SetBackground(colors->GetColor3d("Silver").GetData());
+    view->GetRenderWindow()->SetSize(800, 600);
+    view->GetScene()->AddItem(chart);
+
+// Create a surface
+    vtkNew<vtkTable> table;
+    vtkIdType numPoints = 101;
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+        vtkNew<vtkFloatArray> arr;
+        table->AddColumn(arr);
+    }
+
+    table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+        for (vtkIdType j = 0; j < numPoints; ++j)
+        {
+            VectorXd t(2);
+            t << -10 + i * 0.2f, -1.0f + j * 0.05f;
+            float cost = computeCost(X, y, t, size);
+            table->SetValue(i, j, cost);
+        }
+    }
+
+// Set up the surface plot we wish to visualize and add it to the chart.
+    plot->SetXRange(-10, 10.0);
+    plot->SetYRange(-2, 2);
+    plot->SetInputData(table);
+    plot->GetPen()->SetColorF(colors->GetColor3d("Tomato").GetData());
+    chart->AddPlot(plot);
+
+    view->GetRenderWindow()->SetMultiSamples(0);
+    view->GetInteractor()->Initialize();
+    view->GetRenderWindow()->Render();
+    view->GetRenderer()->GetActors()->Print(cout);
+
+// rotate
+    vtkContextMouseEvent mouseEvent;
+    mouseEvent.SetInteractor(view->GetInteractor());
+
+/*vtkVector2i pos;
+
+vtkVector2i lastPos;
+mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
+lastPos.Set(100, 50);
+mouseEvent.SetLastScreenPos(lastPos);
+pos.Set(150, 100);
+mouseEvent.SetScreenPos(pos);*/
+
+/*vtkVector2d sP(pos.Cast<double>().GetData());
+vtkVector2d lSP(lastPos.Cast<double>().GetData());
+vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
+vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());*/
+
+    chart->MouseMoveEvent(mouseEvent);
+
+    string s = chart->GetAxis(0)->GetTitle();
+    chart->GetAxesTextProperty()->SetFontFamily(VTK_FONT_FILE);
+    chart->GetAxesTextProperty()->SetFontFile("fonts/DejaVuSans.ttf");
+    chart->GetAxesTextProperty()->SetFontSize(32);
+    chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
+    chart->SetYAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x81\xe2\x82\x8e");
+    chart->SetZAxisLabel("J(\xcf\xb4)");
+
+    view->GetInteractor()->Start();
+
+    return 0;
+}
+
+void drawLinearRegressionChart(int size, const VectorXd &x, const VectorXd &y, const VectorXd &finalY) {
     vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
     view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
     view->GetRenderWindow()->SetSize(800, 600);
@@ -94,47 +199,5 @@ int ex1a(const int argc, const char** argv) {
     view->GetRenderWindow()->SetWindowName("Linear Regression"); // has to be after Render!
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-
-    MatrixXd thetaMinMax(2, theta.size());
-    thetaMinMax.row(0) = thetaHistory.colwise().minCoeff();
-    thetaMinMax.row(1) = thetaHistory.colwise().maxCoeff();
-
-    cout << "Theta min / max =" << endl << thetaMinMax << endl;
-
-    std::vector<std::vector<double>> a, b, c;
-
-    for (int i = 0; i < 101; i++) {
-        std::vector<double> a_row, b_row, c_row;
-        for (int j = 0; j < 101; j++) {
-            VectorXd t(2);
-            t << -10 + i * 0.2f, -1.0f + j * 0.05f;
-            float cost = computeCost(X, y, t, size);
-            a_row.push_back(t(0));
-            b_row.push_back(t(1));
-            c_row.push_back(cost);
-        }
-        a.push_back(a_row);
-        b.push_back(b_row);
-        c.push_back(c_row);
-    }
-
-    /*std::map<string, plt::SettingValue> settings;
-
-    settings.insert({"edgecolor", plt::SettingValue(string("black"))});
-    settings.insert({"linewidth", plt::SettingValue(2.0f)});
-    settings.insert({"linestyle", plt::SettingValue(string("--"))});
-    settings.insert({"alpha", plt::SettingValue(0.5f)});
-    settings.insert({"rstride", plt::SettingValue(10)});
-    settings.insert({"cstride", plt::SettingValue(10)});
-
-    settings.insert({"cmap", plt::SettingValue(string("gist_rainbow"))});
-
-    plt::plot_surface(a, b, c, settings);
-    plt::xlabel_u(L"\u03b8\u2080");
-    plt::ylabel_u(L"\u03b8\u2081");
-    plt::set_zlabel_u(L"J(\u03b8)");
-    plt::show();*/
-
-    return 0;
 }
 
