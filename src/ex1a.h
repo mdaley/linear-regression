@@ -1,5 +1,5 @@
-#ifndef LINEAR_REGRESSION_EX1A_H
-#define LINEAR_REGRESSION_EX1A_H
+#ifndef ML_EX1A_H
+#define ML_EX1A_H
 
 #include "matplotlibcpp.h"
 #include "utils.h"
@@ -21,4 +21,6 @@
 
 int ex1a(const int argc, const char** argv);
 
-#endif //LINEAR_REGRESSION_EX1A_H
+void drawLinearRegressionChart(int size, const VectorXd &x, const VectorXd &y, const VectorXd &finalY);
+
+#endif //ML_EX1A_H
