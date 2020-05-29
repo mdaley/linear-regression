@@ -35,6 +35,7 @@ int ex1a(const int argc, const char** argv) {
     gradientDescent(X, y, theta, 0.01, iterations, size, thetaHistory);
 
     cout << "Theta after gradient descent = " << theta.transpose() << endl;
+    cout << "Final cost = " << computeCost(X, y, theta, size) << endl;
 
     VectorXd finalY(size);
     finalY = X * theta;
@@ -64,22 +65,84 @@ int ex1a(const int argc, const char** argv) {
         c.push_back(c_row);
     }
 
-    /*std::map<string, plt::SettingValue> settings;
+    vtkNew<vtkNamedColors> colors;
 
-    settings.insert({"edgecolor", plt::SettingValue(string("black"))});
-    settings.insert({"linewidth", plt::SettingValue(2.0f)});
-    settings.insert({"linestyle", plt::SettingValue(string("--"))});
-    settings.insert({"alpha", plt::SettingValue(0.5f)});
-    settings.insert({"rstride", plt::SettingValue(10)});
-    settings.insert({"cstride", plt::SettingValue(10)});
+    vtkNew<vtkChartXYZ> chart;
+    chart->SetGeometry(vtkRectf(10.0, 10.0, 800, 600));
 
-    settings.insert({"cmap", plt::SettingValue(string("gist_rainbow"))});
+    vtkNew<vtkPlotSurface> plot;
 
-    plt::plot_surface(a, b, c, settings);
-    plt::xlabel_u(L"\u03b8\u2080");
-    plt::ylabel_u(L"\u03b8\u2081");
-    plt::set_zlabel_u(L"J(\u03b8)");
-    plt::show();*/
+    vtkNew<vtkContextView> view;
+    view->GetRenderer()->SetBackground(colors->GetColor3d("Silver").GetData());
+    view->GetRenderWindow()->SetSize(800, 600);
+    view->GetScene()->AddItem(chart);
+
+// Create a surface
+    vtkNew<vtkTable> table;
+    vtkIdType numPoints = 101;
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+        vtkNew<vtkFloatArray> arr;
+        table->AddColumn(arr);
+    }
+
+    table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+        for (vtkIdType j = 0; j < numPoints; ++j)
+        {
+            VectorXd t(2);
+            t << -10 + i * 0.2f, -1.0f + j * 0.05f;
+            float cost = computeCost(X, y, t, size);
+            table->SetValue(i, j, cost);
+        }
+    }
+
+// Set up the surface plot we wish to visualize and add it to the chart.
+    plot->SetXRange(-10, 10.0);
+    plot->SetYRange(-2, 2);
+    plot->SetInputData(table);
+    plot->GetPen()->SetColorF(colors->GetColor3d("Tomato").GetData());
+    chart->AddPlot(plot);
+
+    view->GetRenderWindow()->SetMultiSamples(0);
+    view->GetInteractor()->Initialize();
+    view->GetRenderWindow()->Render();
+    view->GetRenderer()->GetActors()->Print(cout);
+
+// rotate
+    vtkContextMouseEvent mouseEvent;
+    mouseEvent.SetInteractor(view->GetInteractor());
+
+/*vtkVector2i pos;
+
+vtkVector2i lastPos;
+mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
+lastPos.Set(100, 50);
+mouseEvent.SetLastScreenPos(lastPos);
+pos.Set(150, 100);
+mouseEvent.SetScreenPos(pos);*/
+
+/*vtkVector2d sP(pos.Cast<double>().GetData());
+vtkVector2d lSP(lastPos.Cast<double>().GetData());
+vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
+vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());*/
+
+    chart->MouseMoveEvent(mouseEvent);
+
+    chart->GetAxis(0)->GetTitleProperties()->SetFontSize(40);
+    chart->GetAxis(1)->GetTitleProperties()->SetFontSize(40);
+    chart->GetAxis(2)->GetTitleProperties()->SetFontSize(40);
+    chart->GetAxis(0)->GetLabelProperties()->SetFontSize(40);
+    chart->GetAxis(1)->GetLabelProperties()->SetFontSize(40);
+    chart->GetAxis(2)->GetLabelProperties()->SetFontSize(40);
+    string s = chart->GetAxis(0)->GetTitle();
+    //chart->SetXAxisLabel("Theta(0)");
+    //chart->SetYAxisLabel("Theta(1)");
+    //chart->SetZAxisLabel("J(Theta)");
+    //chart->SetAxesFontSize(32);
+
+    view->GetInteractor()->Start();
 
     return 0;
 }

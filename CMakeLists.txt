@@ -10,14 +10,15 @@ find_package(HDF5 REQUIRED CXX)
 find_package(VTK COMPONENTS
         vtkChartsCore
         vtkCommonCore
+        vtkCommonColor
         vtkCommonDataModel
         vtkInteractionStyle
         vtkRenderingContext2D
         vtkRenderingContextOpenGL2
+        vtkRenderingOpenGL2
         vtkRenderingCore
         vtkRenderingFreeType
         vtkRenderingGL2PSOpenGL2
-        vtkRenderingOpenGL2
         vtkViewsContext2D QUIET)
 if (NOT VTK_FOUND)
     message("Skipping ScatterPlot: ${VTK_NOT_FOUND_MESSAGE}")

@@ -18,6 +18,12 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkTable.h>
+#include <vtkNamedColors.h>
+#include <vtkPlotSurface.h>
+#include <vtkPen.h>
+#include <vtkContextMouseEvent.h>
+
+#include "vtkBetterChartXYZ.h"
 
 int ex1a(const int argc, const char** argv);
 
