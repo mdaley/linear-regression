@@ -131,6 +131,9 @@ vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData()
     chart->MouseMoveEvent(mouseEvent);
 
     string s = chart->GetAxis(0)->GetTitle();
+    chart->GetAxesTextProperty()->SetFontFamily(VTK_FONT_FILE);
+    chart->GetAxesTextProperty()->SetFontFile("fonts/DejaVuSans.ttf");
+    chart->GetAxesTextProperty()->SetFontSize(32);
     chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
     chart->SetYAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x81\xe2\x82\x8e");
     chart->SetZAxisLabel("J(\xcf\xb4)");

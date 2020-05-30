@@ -29,6 +29,7 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
+#include "vtkTextProperty.h" // For axes text properties
 #include <vector>            // For ivars
 
 class vtkAnnotationLink;
@@ -124,7 +125,12 @@ vtkTypeMacro(vtkChartXYZ, vtkContextItem);
      */
     void SetZAxisLabel(const char* label);
 
-    vtkTextProperties GetTextProperties();
+    /**
+     * Get the text property for text on the axes.
+     * @return
+     */
+    vtkTextProperty* GetAxesTextProperty();
+
     /**
      * Perform any updates to the item that may be necessary before rendering.
      */
@@ -467,6 +473,11 @@ protected:
      * The label for the Z Axis.
      */
     std::string ZAxisLabel;
+
+    /**
+     * The text properties of the axes.
+     */
+    vtkNew<vtkTextProperty> AxesTextProperty;
 
     /**
      * The six planes that define the bounding cube of our 3D axes.

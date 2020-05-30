@@ -33,7 +33,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
-#include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
@@ -68,6 +67,13 @@ vtkChartXYZ::vtkChartXYZ()
     this->DrawAxesDecoration = true;
     this->FitToScene = true;
     this->Axes.resize(3);
+
+    this->AxesTextProperty->SetJustificationToCentered();
+    this->AxesTextProperty->SetVerticalJustificationToCentered();
+    this->AxesTextProperty->SetColor(0.0, 0.0, 0.0);
+    this->AxesTextProperty->SetFontFamilyToArial();
+    this->AxesTextProperty->SetFontSize(14);
+
     for (unsigned int i = 0; i < 3; ++i)
     {
         vtkNew<vtkAxis> axis;
@@ -137,6 +143,10 @@ void vtkChartXYZ::SetAxisColor(const vtkColor4ub& color)
 vtkColor4ub vtkChartXYZ::GetAxisColor()
 {
     return this->AxisPen->GetColorObject();
+}
+
+vtkTextProperty* vtkChartXYZ::GetAxesTextProperty() {
+    return this->AxesTextProperty;
 }
 
 //------------------------------------------------------------------------------
@@ -375,14 +385,7 @@ void vtkChartXYZ::DrawAxesLabels(vtkContext2D* painter)
 {
     vtkContext3D* context = painter->GetContext3D();
 
-    // set up text property
-    vtkNew<vtkTextProperty> textProperties;
-    textProperties->SetJustificationToCentered();
-    textProperties->SetVerticalJustificationToCentered();
-    textProperties->SetColor(0.0, 0.0, 0.0);
-    textProperties->SetFontFamilyToArial();
-    textProperties->SetFontSize(14);
-    painter->ApplyTextProp(textProperties);
+    painter->ApplyTextProp(AxesTextProperty);
 
     // if we're looking directly down any dimension, we shouldn't draw the
     // corresponding label
