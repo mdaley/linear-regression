@@ -110,6 +110,22 @@ vtkTypeMacro(vtkChartXYZ, vtkContextItem);
     void SetFitToScene(bool b);
 
     /**
+     * Set the label for the X-axis.
+     */
+    void SetXAxisLabel(const char* label);
+
+    /**
+     * Set the label for the Y-axis.
+     */
+    void SetYAxisLabel(const char* label);
+
+    /**
+     * Set the label for the Z-axis.
+     */
+    void SetZAxisLabel(const char* label);
+
+    vtkTextProperties GetTextProperties();
+    /**
      * Perform any updates to the item that may be necessary before rendering.
      */
     void Update() override;

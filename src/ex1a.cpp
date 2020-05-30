@@ -130,17 +130,10 @@ vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData()
 
     chart->MouseMoveEvent(mouseEvent);
 
-    chart->GetAxis(0)->GetTitleProperties()->SetFontSize(40);
-    chart->GetAxis(1)->GetTitleProperties()->SetFontSize(40);
-    chart->GetAxis(2)->GetTitleProperties()->SetFontSize(40);
-    chart->GetAxis(0)->GetLabelProperties()->SetFontSize(40);
-    chart->GetAxis(1)->GetLabelProperties()->SetFontSize(40);
-    chart->GetAxis(2)->GetLabelProperties()->SetFontSize(40);
     string s = chart->GetAxis(0)->GetTitle();
-    //chart->SetXAxisLabel("Theta(0)");
-    //chart->SetYAxisLabel("Theta(1)");
-    //chart->SetZAxisLabel("J(Theta)");
-    //chart->SetAxesFontSize(32);
+    chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
+    chart->SetYAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x81\xe2\x82\x8e");
+    chart->SetZAxisLabel("J(\xcf\xb4)");
 
     view->GetInteractor()->Start();
 

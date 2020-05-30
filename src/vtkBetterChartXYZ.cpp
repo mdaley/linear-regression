@@ -1605,3 +1605,18 @@ void vtkChartXYZ::GetClippingPlaneEquation(int i, double* planeEquation)
         planeEquation[3] = -(normal[0] * origin[0] + normal[1] * origin[1] + normal[2] * origin[2]);
     }
 }
+
+//------------------------------------------------------------------------------
+void vtkChartXYZ::SetXAxisLabel(const char* label) {
+    this->XAxisLabel = label;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartXYZ::SetYAxisLabel(const char* label) {
+    this->YAxisLabel = label;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartXYZ::SetZAxisLabel(const char* label) {
+    this->ZAxisLabel = label;
+}
