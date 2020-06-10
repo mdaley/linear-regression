@@ -30,6 +30,7 @@
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPlot3D.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
@@ -40,6 +41,8 @@
 #include "vtkObjectFactory.h"
 
 #include <sstream>
+#include <vtk-9.0/vtkCoordinate.h>
+#include <list>
 
 vtkStandardNewMacro(vtkChartXYZ);
 
@@ -293,7 +296,8 @@ bool vtkChartXYZ::Paint(vtkContext2D* painter)
     this->DrawAxes(context);
     if (this->DrawAxesDecoration)
     {
-        this->DetermineWhichAxesToLabel();
+        this->NewDetermineWhichAxesToLabel(painter);
+        // this->DetermineWhichAxesToLabel();
         this->DrawTickMarks(painter);
         this->DrawAxesLabels(painter);
     }
@@ -1622,4 +1626,181 @@ void vtkChartXYZ::SetYAxisLabel(const char* label) {
 //------------------------------------------------------------------------------
 void vtkChartXYZ::SetZAxisLabel(const char* label) {
     this->ZAxisLabel = label;
+}
+
+void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
+    vtkContext3D* context = painter->GetContext3D();
+    context->PushMatrix();
+    //context->AppendTransform(this->Box);
+
+    this->Pen->SetColor(255, 255, 255, 255);
+    this->Pen->SetWidth(20);
+    context->ApplyPen(this->Pen);
+    this->Pen->SetColor(0, 0, 0, 255);
+    this->Pen->SetWidth(5);
+
+    // calculate the gradients for the x, y and z axes in 2d projection
+    enum label {none, highest, lowest};
+    float gradient[3];
+    bool doNotLabel[3] = { false, false, false};
+    label axisLabel[3];
+
+    // abs(gradient), gradient, do not label boolean, axis number
+    std::list<std::tuple<bool, float, float, int>> axisData;
+
+    for (int axis = 0; axis < 3;axis++) {
+        vtkVector3f start(0, 0, 0);
+        vtkVector3f end(0, 0, 0);
+        end[axis] = 1;
+
+        this->Box->TransformPoint(start.GetData(), start.GetData());
+        this->Box->TransformPoint(end.GetData(), end.GetData());
+
+        float dy = end[1] - start[1];
+        float dx = end[0] - start[0];
+
+        float gradient = 0;
+        bool label = true;
+        if (dx == 0 && dy == 0) {
+            //gradient[axis] = NAN;
+            //doNotLabel[axis] = true;
+            label = false;
+        }  else if (dx == 0) {
+            //gradient[axis] = VTK_FLOAT_MAX;
+            gradient = VTK_FLOAT_MAX;
+        } else {
+            //gradient[axis] = dy / dx;
+            gradient = dy / dx;
+        }
+
+        axisData.push_back(std::make_tuple(label, abs(gradient), gradient, axis));
+    }
+
+    axisData.sort([](const std::tuple<bool, float, float, int> first, const std::tuple<bool, float, float, int> second) -> bool {
+        return std::get<0>(first) > std::get<0>(second) || std::get<1>(first) > std::get<1>(second);
+    });
+
+    cout << "AXIS RULES" << endl;
+    for (const auto & it : axisData) {
+        cout << std::boolalpha << std::get<0>(it) << " " << std::get<1>(it) << " " << std::get<2>(it) << " " << std::get<3>(it) << endl;
+    }
+    cout << "----" << endl;
+
+    bool first = true;
+    for (const auto& it : axisData) {
+        if (std::get<0>(it)) {
+            float targetC = first ? VTK_FLOAT_MIN : VTK_FLOAT_MAX;
+            int targetI, targetJ;
+            int axis = std::get<3>(it);
+            float gradient = std::get<2>(it);
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    vtkVector3f start(axis == 0 ? 0 : i,
+                            axis == 1 ? 0 : (axis == 0) ? i : j,
+                            axis == 2 ? 0 : j);
+
+                    this->Box->TransformPoint(start.GetData(), start.GetData());
+                    float c = start[1] - gradient * start[0];
+                    if (first) {
+                        if (c > targetC) {
+                            targetC = c;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    }else {
+                        if (c < targetC) {
+                            targetC = c;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    }
+                }
+            }
+
+            switch (axis)
+            {
+                case 0:
+                    this->XAxisToLabel[0] = static_cast<int>(targetI);
+                    this->XAxisToLabel[1] = static_cast<int>(targetJ);
+                    break;
+                case 1:
+                    this->YAxisToLabel[0] = static_cast<int>(targetI);
+                    this->YAxisToLabel[1] = static_cast<int>(targetJ);
+                    break;
+                case 2:
+                    this->ZAxisToLabel[0] = static_cast<int>(targetI);
+                    this->ZAxisToLabel[1] = static_cast<int>(targetJ);
+                    break;
+                default:
+                    break;
+            }
+        }
+        first = false;
+    }
+
+    //cout << "gradients " << doNotLabel[0] << " " << doNotLabel[1] << " " << doNotLabel[2] << " " << gradient[0] << " " << gradient[1] << " " << gradient[2] << endl;
+
+    /*for (int axis = 0; axis < 3; axis++) {
+
+        std::list<std::tuple<int, int, float>> cs;
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                vtkVector3f start(axis == 0 ? 0 : i,
+                                  axis == 1 ? 0 : (axis == 0) ? i : j,
+                                  axis == 2 ? 0 : j);
+                vtkVector3f end(start);
+                end[axis] = 1;
+
+                //cout << axis << " " << start << " " << end << endl;
+                if (axis == 0 && i == 0 && j == 0) {
+                    context->DrawPoint(start);
+                    //context->DrawPoint(end);
+                }
+                //context->DrawLine(start, end);
+                this->Box->TransformPoint(start.GetData(), start.GetData());
+                this->Box->TransformPoint(end.GetData(), end.GetData());
+
+                //float dy = end[1] - start[1];
+                //float dx = end[0] - start[0];
+                //float gradient = dx == 0 ? VTK_FLOAT_MAX : dy / dx;
+                // c from y = mx + c
+                float c = start[1] - gradient[axis] * start[0];
+
+                cs.push_back(std::make_tuple(i, j, c));
+                //if (axis == 0 && i == 0 && j == 0)
+                    //cout << axis << " " << gradient << " " << c << endl;
+                //if (axis == 0 && i == 0 && j == 0)
+                //    cout << start[0] << " " << start[1] << endl;
+                //vtkVector2f start_xy;
+                //vtkVector2f end_xy;
+
+                //WorldCoordinateToDisplayCoordinate(start.GetData(), start_xy.GetData());
+                //WorldCoordinateToDisplayCoordinate(end.GetData(), end_xy.GetData());
+
+                //cout << axis << " " << start << " " << end << endl;
+                //cout << axis << " " << start_xy << " " << end_xy << endl;
+            }
+        }
+
+        //cout << "Cs for axis " << axis << endl;
+        //for (auto it = cs.cbegin(); it != cs.cend(); it++) {
+        //    cout << std::get<0>(*it) << " " << std::get<1>(*it) << " " << std::get<2>(*it) << endl;
+        //}
+    }*/
+
+    context->PopMatrix();
+}
+
+void vtkChartXYZ::WorldCoordinateToDisplayCoordinate(float *worldCoord, float *displayCoord) {
+    vtkNew<vtkCoordinate> coord;
+    coord->SetCoordinateSystemToWorld();
+    coord->SetViewport(this->GetScene()->GetRenderer());
+    coord->SetValue(worldCoord[0], worldCoord[1], worldCoord[2]);
+    coord->SetCoordinateSystemToDisplay();
+
+    double* xy = coord->GetValue();
+
+    displayCoord[0] = xy[0];
+    displayCoord[1] = xy[1];
 }

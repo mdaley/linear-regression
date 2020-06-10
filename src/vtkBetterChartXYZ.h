@@ -528,6 +528,10 @@ protected:
 private:
     vtkChartXYZ(const vtkChartXYZ&) = delete;
     void operator=(const vtkChartXYZ&) = delete;
+
+    void NewDetermineWhichAxesToLabel(vtkContext2D *painter);
+
+    void WorldCoordinateToDisplayCoordinate(float *worldCoord, float *displayCoord);
 };
 
 #endif
