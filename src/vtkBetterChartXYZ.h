@@ -312,6 +312,7 @@ protected:
      */
     void DrawAxes(vtkContext3D* context);
 
+    void NewDetermineWhichAxesToLabel();
     /**
      * For each of the XYZ dimensions, find the axis line that is furthest
      * from the rendered data.
@@ -328,6 +329,21 @@ protected:
      */
     void DrawAxesLabels(vtkContext2D* painter);
 
+    /**
+     * Draw the axes mid-points
+     */
+    void DrawAxesMidPoints(vtkContext2D* painter);
+
+    /**
+     * Draw the lowest vertex in 2D
+     * @param painter
+     */
+    void DrawLowestVertex(vtkContext2D* painter);
+
+    /**
+     * Transform a 3d world coordinate to the x,y 2d coordinate as displayed in a window.
+     */
+    void WorldCoordinateToDisplayCoordinate(float* worldCoord, float* displayCoord);
     /**
      * Compute how some text should be offset from an axis.  The parameter
      * bounds contains the bounding box of the text to be rendered.  The
@@ -528,6 +544,8 @@ protected:
 private:
     vtkChartXYZ(const vtkChartXYZ&) = delete;
     void operator=(const vtkChartXYZ&) = delete;
+
+    void DrawAxisEdges();
 };
 
 #endif

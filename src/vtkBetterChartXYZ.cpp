@@ -20,9 +20,11 @@
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkContextDevice3D.h"
 #include "vtkContextKeyEvent.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
+#include "vtkCoordinate.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
@@ -30,6 +32,7 @@
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPlot3D.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
@@ -40,6 +43,7 @@
 #include "vtkObjectFactory.h"
 
 #include <sstream>
+#include <list>
 
 vtkStandardNewMacro(vtkChartXYZ);
 
@@ -293,9 +297,13 @@ bool vtkChartXYZ::Paint(vtkContext2D* painter)
     this->DrawAxes(context);
     if (this->DrawAxesDecoration)
     {
-        this->DetermineWhichAxesToLabel();
-        this->DrawTickMarks(painter);
-        this->DrawAxesLabels(painter);
+        //this->NewDetermineWhichAxesToLabel();
+        //this->DetermineWhichAxesToLabel();
+        //this->DrawTickMarks(painter);
+        //this->DrawAxesLabels(painter);
+        this->DrawAxesMidPoints(painter);
+        //this->DrawLowestVertex(painter);
+        //this->DrawAxisEdges(painter);
     }
 
     // If necessary, rescale the axes so they fits our scene nicely
@@ -664,9 +672,274 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D* painter)
     context->ApplyPen(this->AxisPen);
 }
 
+void vtkChartXYZ::WorldCoordinateToDisplayCoordinate(float* worldCoord, float* displayCoord) {
+    vtkNew<vtkCoordinate> coord;
+    coord->SetCoordinateSystemToWorld();
+    coord->SetViewport(this->GetScene()->GetRenderer());
+    coord->SetValue(worldCoord[0], worldCoord[1], worldCoord[2]);
+    coord->SetCoordinateSystemToDisplay();
+
+    double* xy = coord->GetValue();
+
+    displayCoord[0] = xy[0];
+    displayCoord[1] = xy[1];
+}
+
+void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
+
+    for (int axis = 0; axis < 3; axis++) {
+        float p0[3] = {0, 0, 0};
+        float p1[3] = {0, 0, 0};
+        p1[axis] = 1;
+
+        this->Box->TransformPoint(p0, p0);
+        this->Box->TransformPoint(p1, p1);
+
+        float p0_2d[2];
+        float p1_2d[2];
+
+        this->WorldCoordinateToDisplayCoordinate(p0, p0_2d);
+        this->WorldCoordinateToDisplayCoordinate(p1, p1_2d);
+
+        float dx = p1_2d[0] - p0_2d[0];
+        float dy = p1_2d[1] - p0_2d[1];
+        float gradient = (dy == 0) ? VTK_FLOAT_MAX : (dx / dy);
+
+        cout << "GRADIENT " << axis << " " << gradient << endl;
+
+    }
+
+    for (int axis = 0; axis < 3; axis++) {
+
+        float lowestY = VTK_FLOAT_MAX;
+        std::pair<int, int> lowestAxisPair;
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                float midpoint[3];
+                midpoint[0] = (axis == 0) ? 0.5 : i;
+                midpoint[1] = (axis == 1) ? 0.5 : (axis == 0) ? i : j;
+                midpoint[2] = (axis == 2) ? 0.5 : j;
+
+                // transform midpoint to world coordinates
+                this->Box->TransformPoint(midpoint, midpoint);
+
+                // transform to 2d viewpoint x, y coordinates
+                /*vtkNew<vtkCoordinate> coord;
+                coord->SetCoordinateSystemToWorld();
+                coord->SetViewport(this->GetScene()->GetRenderer());
+                coord->SetValue(midpoint[0], midpoint[1], midpoint[2]);
+                coord->SetCoordinateSystemToDisplay();*/
+
+                float xy[2];
+                WorldCoordinateToDisplayCoordinate(midpoint, xy);
+
+                if (xy[1] < lowestY) {
+                    lowestY = xy[1];
+                    lowestAxisPair.first = i;
+                    lowestAxisPair.second = j;
+                }
+            }
+        }
+
+        switch (axis)
+        {
+            case 0:
+                this->XAxisToLabel[0] = lowestAxisPair.first;
+                this->XAxisToLabel[1] = lowestAxisPair.second;
+                break;
+            case 1:
+                this->YAxisToLabel[0] = lowestAxisPair.first;
+                this->YAxisToLabel[1] = lowestAxisPair.second;
+                break;
+            case 2:
+            default:
+                this->ZAxisToLabel[0] = lowestAxisPair.first;
+                this->ZAxisToLabel[1] = lowestAxisPair.second;
+                break;
+        }
+        // get 4 mid points for each axis, transform to 2d x,y pair, pick the one with the lowest y value and
+        // use this axis for labelling.
+    }
+}
+
+void vtkChartXYZ::DrawAxesMidPoints(vtkContext2D* painter) {
+    vtkContext3D* context = painter->GetContext3D();
+    context->PushMatrix();
+    //context->AppendTransform(this->PlotTransform);
+
+    for (int axis = 0; axis < 3; axis++) {
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                float midpoint[3];
+                midpoint[0] = (axis == 0) ? 0.5 : i;
+                midpoint[1] = (axis == 1) ? 0.5 : (axis == 0) ? i : j;
+                midpoint[2] = (axis == 2) ? 0.5 : j;
+
+                //this->Box->TransformPoint(midpoint, midpoint);
+
+                this->Pen->SetWidth(20);
+                this->Pen->SetColor(axis == 0 ? 255 : 0, axis == 1 ? 255 : 0, axis ==2 ? 255 : 0, 255);
+                context->ApplyPen(this->Pen);
+                context->DrawPoint(vtkVector3f(midpoint));
+                context->DrawLine(vtkVector3f(midpoint), vtkVector3f(0, 0, 0));
+                this->Pen->SetWidth(5);
+                this->Pen->SetColor(0, 0, 0, 255);
+            }
+        }
+    }
+
+    context->ApplyPen(this->AxisPen);
+    context->PopMatrix();
+}
+
+void vtkChartXYZ::DrawLowestVertex(vtkContext2D* painter) {
+    vtkContext3D* context = painter->GetContext3D();
+
+    float lowestY = VTK_FLOAT_MAX;
+    float lowestVertex[3];
+
+    vtkVector3f centre(0, 0, 0);
+    float centre_xy[2];
+
+    // Get the centre point in both 3d and 2d.
+    vtkVector3f zeros(0, 0, 0);
+    vtkVector3f ones(1, 1, 1);
+    this->Box->TransformPoint(zeros.GetData(), zeros.GetData());
+    this->Box->TransformPoint(ones.GetData(), ones.GetData());
+    centre = zeros + ones;
+    centre.Set(centre.GetX() / 2, centre.GetY() / 2, centre.GetZ() / 2);
+    this->WorldCoordinateToDisplayCoordinate(centre.GetData(), centre_xy);
+
+    this->Pen->SetWidth(20);
+    this->Pen->SetColor(255, 255, 255, 255);
+    context->ApplyPen(this->Pen);
+    context->DrawPoint(centre);
+
+    std::list<std::tuple<float, vtkVector3i, vtkVector3f>> vertices;
+
+    for (int i = 0 ; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                vtkVector3i vertex_int(i, j, k);
+                vtkVector3f vertex(i, j, k);
+
+                this->Box->TransformPoint(vertex.GetData(), vertex.GetData());
+
+                float xy[2];
+
+                this->WorldCoordinateToDisplayCoordinate(vertex.GetData(), xy);
+
+                float distance = sqrt(pow(centre_xy[0] - xy[0], 2) + pow(centre_xy[1] - xy[1], 2));
+
+                //cout << "xy[1] and vertex " << xy[1] << vertex[0] << " " << vertex[1] << " " << vertex[2] << endl;
+                vertices.push_back(std::make_tuple(distance, vertex_int, vertex));
+            }
+        }
+    }
+
+    vertices.sort([](const std::tuple<float, vtkVector3i, vtkVector3f> first,
+                     const std::tuple<float, vtkVector3i, vtkVector3f> second) -> bool {
+        return std::get<0>(first) > std::get<0>(second);
+    });
+
+    int i = 0;
+    for (auto it = vertices.cbegin(); it != vertices.cend(); it++, i++) {
+        if (i < 6) {
+            context->DrawPoint(std::get<2>(*it));
+        }
+    }
+
+    // look at all the midpoints and pick the six furthest from xy-centre, i.e. the ones
+    // on the outside of the hexagon.
+
+    // distance, axis, i, j , 3d posn.
+    /*std::list<std::tuple<float, int, int, int, vtkVector3f>> midpoints;
+
+    for (int axis = 0; axis < 3; axis++) {
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                vtkVector3f midpoint;
+                midpoint.Set((axis == 0) ? 0.5 : i,
+                        (axis == 1) ? 0.5 : (axis == 0) ? i : j,
+                        (axis == 2) ? 0.5 : j);
+
+                this->Box->TransformPoint(midpoint.GetData(), midpoint.GetData());
+
+                float midpoint_xy[2];
+                this->WorldCoordinateToDisplayCoordinate(midpoint.GetData(), midpoint_xy);
+
+                float distance = sqrt(pow(centre_xy[0] - midpoint_xy[0], 2) + pow(centre_xy[1] - midpoint_xy[1], 2));
+
+                midpoints.push_back(std::make_tuple(distance, axis, i, j, midpoint));
+
+            }
+        }
+    }
+
+    midpoints.sort([] (const std::tuple<float, int, int, int, vtkVector3f> first,
+            const std::tuple<float, int, int, int, vtkVector3f> second) -> bool {
+        return std::get<0>(first) > std::get<0>(second);
+    });
+
+    int i = 0;
+    for (auto it = midpoints.cbegin(); it != midpoints.cend(); it++, i++) {
+        if (i < 6) {
+            context->DrawPoint(std::get<4>(*it));
+        }
+    }*/
+
+    /*vertices.sort([](const std::pair<float, vtkVector3f> first, const std::pair<float, vtkVector3f> second) -> bool {
+        return first.first < second.first;
+    });
+
+    int i = 0;
+    for(auto it = vertices.cbegin(); it != vertices.cend(); it++, i++) {
+        cout << "y and vertex " << it->first << " " << it->second[0] << " " << it->second[1] << " " << it->second[2] << endl;
+        if (i < 8) {
+            context->DrawPoint(it->second);
+        } else {
+            break;
+        }
+    }*/
+
+    this->Pen->SetWidth(5);
+    this->Pen->SetColor(0, 0, 0, 255);
+    context->ApplyPen(this->AxisPen);
+}
+
+/*void vtkChartXYZ::DrawAxisEdges(vtkContext2D* painter) {
+    vtkContext3D* context = painter->GetContext3D();
+
+    context->ApplyPen(this->AxisPen);
+    for (int axis = 0; axis < 3; axis++) {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                vtkVector3f start(axis == 0 ? 0 : i,
+                                  axis == 1 ? 0 : (axis == 0 ? i : j),
+                                  axis == 2 ? 0 : j);
+                vtkVector3f end(axis == 0 ? 1 : i,
+                                axis == 1 ? 1 : (axis == 0 ? i : j),
+                                axis == 2 ? 1 : j);
+
+                this->Box->TransformPoint(start.GetData(), start.GetData());
+                this->Box->TransformPoint(end.GetData(), end.GetData());
+
+                this->AxisPen->SetColor(axis == 0 ? 255 : 0, axis == 1 ? 255 : 0, axis == 2 ? 255 : 0, 255);
+                context->DrawLine(start, end);
+            }
+        }
+    }
+
+    this->AxisPen->SetColor(0, 0, 0, 255);
+}*/
+
 //------------------------------------------------------------------------------
 void vtkChartXYZ::DetermineWhichAxesToLabel()
 {
+    //NewDetermineWhichAxesToLabel();
     // for each dimension (XYZ)
     for (int axis = 0; axis < 3; ++axis)
     {
@@ -1623,3 +1896,4 @@ void vtkChartXYZ::SetYAxisLabel(const char* label) {
 void vtkChartXYZ::SetZAxisLabel(const char* label) {
     this->ZAxisLabel = label;
 }
+
