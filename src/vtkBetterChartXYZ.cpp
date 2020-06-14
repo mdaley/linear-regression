@@ -985,10 +985,10 @@ bool vtkChartXYZ::Rotate(const RotateDirection rotateDirection) {
             this->Rotation->RotateY(1);
             break;
         case up:
-            this->Rotation->RotateX(1);
+            this->Rotation->RotateX(-1);
             break;
         case down:
-            this->Rotation->RotateX(-1);
+            this->Rotation->RotateX(1);
             break;
     }
 
