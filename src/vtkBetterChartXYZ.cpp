@@ -31,6 +31,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkPlot3D.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
@@ -970,6 +971,34 @@ bool vtkChartXYZ::Rotate(const vtkContextMouseEvent& mouse)
     return true;
 }
 
+bool vtkChartXYZ::Rotate(const RotateDirection rotateDirection) {
+    if (this->Scene->GetSceneHeight() == 0 || this->Scene->GetSceneWidth() == 0)
+    {
+        return false;
+    }
+
+    switch(rotateDirection) {
+        case left:
+            this->Rotation->RotateY(-1);
+            break;
+        case right:
+            this->Rotation->RotateY(1);
+            break;
+        case up:
+            this->Rotation->RotateX(1);
+            break;
+        case down:
+            this->Rotation->RotateX(-1);
+            break;
+    }
+
+    this->Scene->SetDirty(true);
+
+    this->InvokeEvent(vtkCommand::InteractionEvent);
+
+    return true;
+}
+
 //------------------------------------------------------------------------------
 bool vtkChartXYZ::Pan(const vtkContextMouseEvent& mouse)
 {
@@ -1034,31 +1063,30 @@ bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
 }
 
 //------------------------------------------------------------------------------
-bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& key)
+bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& evt)
 {
-    switch (key.GetKeyCode())
-    {
+    std::string key = evt.GetInteractor()->GetKeySym();
         // Change view to 2D, YZ chart
-        case 'x':
-            this->LookDownX();
-            break;
-        case 'X':
-            this->LookUpX();
-            break;
-            // Change view to 2D, XZ chart
-        case 'y':
-            this->LookDownY();
-            break;
-        case 'Y':
-            this->LookUpY();
-            break;
-            // Change view to 2D, XY chart
-        case 'z':
-            this->LookDownZ();
-            break;
-        case 'Z':
-            this->LookUpZ();
-            break;
+    if (key == "x") {
+        this->LookDownX();
+    } else if (key == "X") {
+        this->LookUpX();
+    } else if (key =="y") {
+        this->LookDownY();
+    } else if (key == "Y") {
+        this->LookUpY();
+    } else if (key == "z") {
+        this->LookDownZ();
+    } else if (key == "Z") {
+        this->LookUpZ();
+    } else if (key == "Left") {
+        this->Rotate(left);
+    } else if (key == "Up") {
+        this->Rotate(up);
+    } else if (key == "Right") {
+        this->Rotate(right);
+    } else if (key == "Down") {
+        this->Rotate(down);
     }
 
     return true;
