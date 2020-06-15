@@ -1066,7 +1066,7 @@ bool vtkChartXYZ::Spin(const vtkContextMouseEvent& mouse)
 bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& evt)
 {
     std::string key = evt.GetInteractor()->GetKeySym();
-        // Change view to 2D, YZ chart
+
     if (key == "x") {
         this->LookDownX();
     } else if (key == "X") {
@@ -1667,14 +1667,15 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
     this->Pen->SetWidth(5);
 
     // calculate the gradients for the x, y and z axes in 2d projection
-    enum label {none, highest, lowest};
-    float gradient[3];
-    bool doNotLabel[3] = { false, false, false};
-    label axisLabel[3];
+    //enum label {none, highest, lowest};
+    //float gradient[3];
+    //label axisLabel[3];
 
-    // abs(gradient), gradient, do not label boolean, axis number
-    std::list<std::tuple<bool, float, float, int>> axisData;
+    // Axis state, abs(gradient), gradient, axis number
+    std::list<std::tuple<AxisState, float, float, int>> axisData;
 
+    bool verticalUsed = false;
+    bool horizontalUsed = false;
     for (int axis = 0; axis < 3;axis++) {
         vtkVector3f start(0, 0, 0);
         vtkVector3f end(0, 0, 0);
@@ -1687,51 +1688,73 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
         float dx = end[0] - start[0];
 
         float gradient = 0;
-        bool label = true;
+        AxisState axisState;
         if (dx == 0 && dy == 0) {
-            label = false;
+            axisState = doNotLabel;
         }  else if (dx == 0) {
-            gradient = VTK_FLOAT_MAX;
+            if (verticalUsed) {
+                axisState = vertical2;
+            } else {
+                axisState = vertical;
+                verticalUsed = true;
+            }
+        } else if (dy == 0) {
+            if (horizontalUsed) {
+                axisState = horizontal2;
+            } else {
+                axisState = horizontal;
+                horizontalUsed = true;
+            }
         } else {
+            axisState = standard;
             gradient = dy / dx;
         }
 
-        axisData.push_back(std::make_tuple(label, abs(gradient), gradient, axis));
+        axisData.push_back(std::make_tuple(axisState, abs(gradient), gradient, axis));
     }
 
-    axisData.sort([](const std::tuple<bool, float, float, int> first, const std::tuple<bool, float, float, int> second) -> bool {
-        return std::get<0>(first) > std::get<0>(second) || std::get<1>(first) > std::get<1>(second);
+    axisData.sort([](const std::tuple<AxisState, float, float, int> first, const std::tuple<AxisState, float, float, int> second) -> bool {
+        return std::get<0>(first) < std::get<0>(second) || std::get<1>(first) > std::get<1>(second);
     });
 
     cout << "AXIS RULES" << endl;
     for (const auto & it : axisData) {
-        cout << std::boolalpha << std::get<0>(it) << " " << std::get<1>(it) << " " << std::get<2>(it) << " " << std::get<3>(it) << endl;
+        cout << AxisStatePrintableValues[std::get<0>(it)] << " " << std::get<1>(it) << " " << std::get<2>(it) << " " << std::get<3>(it) << endl;
     }
     cout << "----" << endl;
 
-    bool first = true;
     for (const auto& it : axisData) {
-        if (std::get<0>(it)) {
-            float targetC = first ? VTK_FLOAT_MIN : VTK_FLOAT_MAX;
+        AxisState axisState = std::get<0>(it);
+        float gradient = std::get<2>(it);
+        if (axisState != doNotLabel) {
+            float targetC = axisState != standard ? VTK_FLOAT_MAX : (gradient > 0) ? VTK_FLOAT_MAX : VTK_FLOAT_MAX;
             int targetI, targetJ;
             int axis = std::get<3>(it);
-            float gradient = std::get<2>(it);
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 2; j++) {
                     vtkVector3f start(axis == 0 ? 0 : i,
-                            axis == 1 ? 0 : (axis == 0) ? i : j,
-                            axis == 2 ? 0 : j);
+                                      axis == 1 ? 0 : (axis == 0) ? i : j,
+                                      axis == 2 ? 0 : j);
 
                     this->Box->TransformPoint(start.GetData(), start.GetData());
-                    float c = start[1] - gradient * start[0];
-                    if (first) {
-                        if (c > targetC) {
+
+                    if (axisState == vertical || axisState == vertical2) {
+                        float c = start[0];
+                        if (c < targetC) {
                             targetC = c;
                             targetI = i;
                             targetJ = j;
                         }
-                    } else {
+                    } else if (axisState == horizontal || axisState == horizontal2) {
+                        float c = start[1];
                         if (c < targetC) {
+                            targetC = c;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    } else { // standard
+                        float c = gradient * ( start[1] / gradient - start[0]);
+                        if ((gradient > 0 && c < targetC) || (gradient < 0 && c < targetC)) {
                             targetC = c;
                             targetI = i;
                             targetJ = j;
@@ -1740,8 +1763,8 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
                 }
             }
 
-            switch (axis)
-            {
+            cout << "LABELLING" << axis << " " << targetI << " " << targetJ << endl;
+            switch (axis) {
                 case 0:
                     this->XAxisToLabel[0] = static_cast<int>(targetI);
                     this->XAxisToLabel[1] = static_cast<int>(targetJ);
@@ -1758,7 +1781,6 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
                     break;
             }
         }
-        first = false;
     }
 
     context->PopMatrix();

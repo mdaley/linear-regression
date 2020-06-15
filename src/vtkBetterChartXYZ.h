@@ -200,6 +200,17 @@ protected:
      */
     enum RotateDirection {left, right, up, down};
 
+    std::string AxisStatePrintableValues[6] = {
+        "vertical",
+        "vertical2",
+        "horizontal",
+        "horizontal2",
+        "doNotLabel",
+        "standard"
+    };
+
+    enum AxisState {vertical, vertical2, horizontal, horizontal2, doNotLabel, standard};
+
     /**
      * Calculate the transformation matrices used to draw data points and axes
      * in the scene.  This function also sets up clipping planes that determine
