@@ -1714,7 +1714,13 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
     }
 
     axisData.sort([](const std::tuple<AxisState, float, float, int> first, const std::tuple<AxisState, float, float, int> second) -> bool {
-        return std::get<0>(first) < std::get<0>(second) || std::get<1>(first) > std::get<1>(second);
+        // axisState lower goes first
+        // if axisState the same and both standard, then steepest goes first
+        AxisState stateFirst = std::get<0>(first);
+        AxisState stateSecond = std::get<0>(second);
+        float absGradientFirst = std::get<1>(first);
+        float absGradientSecond = std::get<1>(second);
+        return (stateFirst < stateSecond) || ((stateFirst == stateSecond) && absGradientFirst > absGradientSecond);
     });
 
     cout << "AXIS RULES" << endl;
@@ -1728,6 +1734,18 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
         float gradient = std::get<2>(it);
         if (axisState != doNotLabel) {
             float targetC = axisState != standard ? VTK_FLOAT_MAX : (gradient > 0) ? VTK_FLOAT_MAX : VTK_FLOAT_MAX;
+
+            float targetX, targetY;
+
+            if (axisState == vertical) {
+                targetX = VTK_FLOAT_MAX;
+            } else if (axisState == horizontal) {
+                targetY = VTK_FLOAT_MAX;
+            } else if (axisState == vertical2 || axisState == horizontal2) {
+                targetX = VTK_FLOAT_MIN;
+                targetY = VTK_FLOAT_MAX;
+            }
+
             int targetI, targetJ;
             int axis = std::get<3>(it);
             for (int i = 0; i < 2; i++) {
@@ -1738,17 +1756,26 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
 
                     this->Box->TransformPoint(start.GetData(), start.GetData());
 
-                    if (axisState == vertical || axisState == vertical2) {
-                        float c = start[0];
-                        if (c < targetC) {
-                            targetC = c;
+                    if (axisState == vertical) {
+                        float x = start[0];
+                        if (x < targetX) {
+                            targetX = x;
                             targetI = i;
                             targetJ = j;
                         }
-                    } else if (axisState == horizontal || axisState == horizontal2) {
-                        float c = start[1];
-                        if (c < targetC) {
-                            targetC = c;
+                    } else if (axisState == horizontal) {
+                        float y = start[1];
+                        if (y < targetY) {
+                            targetY = y;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    } else if (axisState == vertical2 || axisState == horizontal2) {
+                        float x = start[0];
+                        float y = start[1];
+                        if (x > targetX || y < targetY) {
+                            targetX = x;
+                            targetY = y;
                             targetI = i;
                             targetJ = j;
                         }
@@ -1763,7 +1790,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
                 }
             }
 
-            cout << "LABELLING" << axis << " " << targetI << " " << targetJ << endl;
+            cout << "LABELLING " << axis << " " << targetI << " " << targetJ << endl;
             switch (axis) {
                 case 0:
                     this->XAxisToLabel[0] = static_cast<int>(targetI);
