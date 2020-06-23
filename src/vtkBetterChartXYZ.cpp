@@ -1740,6 +1740,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
             if (axisState == vertical) {
                 targetX = VTK_FLOAT_MAX;
             } else if (axisState == horizontal) {
+                targetX = VTK_FLOAT_MAX;
                 targetY = VTK_FLOAT_MAX;
             } else if (axisState == vertical2 || axisState == horizontal2) {
                 targetX = VTK_FLOAT_MIN;
@@ -1764,8 +1765,10 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel(vtkContext2D *painter) {
                             targetJ = j;
                         }
                     } else if (axisState == horizontal) {
+                        float x = start[0];
                         float y = start[1];
-                        if (y < targetY) {
+                        if (y < targetY || x < targetX) {
+                            targetX = x;
                             targetY = y;
                             targetI = i;
                             targetJ = j;
