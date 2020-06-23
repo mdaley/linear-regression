@@ -340,6 +340,12 @@ protected:
     void DetermineWhichAxesToLabel();
 
     /**
+     * For each of the XYZ dimensions, find the axis line that would be best
+     * used for labelling.
+     */
+    void NewDetermineWhichAxesToLabel();
+
+    /**
      * Draw tick marks and tick mark labels along the axes.
      */
     void DrawTickMarks(vtkContext2D* painter);
@@ -549,10 +555,6 @@ protected:
 private:
     vtkChartXYZ(const vtkChartXYZ&) = delete;
     void operator=(const vtkChartXYZ&) = delete;
-
-    void NewDetermineWhichAxesToLabel(vtkContext2D *painter);
-
-    void WorldCoordinateToDisplayCoordinate(float *worldCoord, float *displayCoord);
 };
 
 #endif
