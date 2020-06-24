@@ -1321,7 +1321,8 @@ double vtkChartXYZ::CalculateNiceMinMax(double& min, double& max, int axis)
     float pixelRange =
             sqrt((end[0] - start[0]) * (end[0] - start[0]) + (end[1] - start[1]) * (end[1] - start[1]));
 
-    return vtkAxis::NiceMinMax(min, max, pixelRange, 30.0f);
+    float spacing = 30.0f * (this->GetAxesTextProperty()->GetFontSize() / 14.0f);
+    return vtkAxis::NiceMinMax(min, max, pixelRange, spacing);
 }
 
 //------------------------------------------------------------------------------
