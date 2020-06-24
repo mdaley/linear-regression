@@ -481,54 +481,46 @@ void vtkChartXYZ::GetOffsetForAxisLabel(int axis, float* bounds, float* offset)
     offset[1] = 0;
     switch (this->DirectionToData[axis])
     {
-        // data is to the north
         // offset is -y
-        case 0:
+        case north:
             offset[1] = -bounds[3];
             break;
 
-            // data is northeast
             // offset is -x, -y
-        case 1:
+        case northeast:
             offset[0] = -bounds[2];
             offset[1] = -bounds[3];
             break;
 
-            // data is east
             // offset is -x
-        case 2:
+        case east:
             offset[0] = -bounds[2];
             break;
 
-            // data is southeast
             // offset is -x, +y
-        case 3:
+        case southeast:
             offset[0] = -bounds[2];
             offset[1] = bounds[3];
             break;
 
-            // data is south
             // offset is +y
-        case 4:
+        case south:
             offset[1] = bounds[3];
             break;
 
-            // data is southwest
             // offset is +x, +y
-        case 5:
+        case southwest:
             offset[0] = bounds[2];
             offset[1] = bounds[3];
             break;
 
-            // data is west
             // offset is +y
-        case 6:
+        case west:
             offset[0] = bounds[2];
             break;
 
-            // data is northwest
             // offset is +x, -y
-        case 7:
+        case northwest:
         default:
             offset[0] = bounds[2];
             offset[1] = -bounds[3];
@@ -826,7 +818,7 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
                     // record this axis line if it has the greatest distance to the data
                     if (d > maxDistance)
                     {
-                        this->DirectionToData[axis] = directionToData;
+                        this->DirectionToData[axis] = static_cast<Directions>(directionToData);
                         maxDistance = d;
                         switch (axis)
                         {
@@ -1784,6 +1776,16 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
                     break;
                 default:
                     break;
+            }
+
+            // directions to data
+            if (axisState == vertical) {
+                this->DirectionToData[axis] = east;
+            } else if (axisState == vertical2) {
+                this->DirectionToData[axis] = west;
+            } else if (axisState == horizontal || axisState == horizontal2) {
+                this->DirectionToData[axis] = north;
+            } else {
             }
         }
     }

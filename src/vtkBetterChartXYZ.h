@@ -200,16 +200,15 @@ protected:
      */
     enum RotateDirection {left, right, up, down};
 
-    std::string AxisStatePrintableValues[6] = {
-        "vertical",
-        "vertical2",
-        "horizontal",
-        "horizontal2",
-        "doNotLabel",
-        "standard"
-    };
-
+    /**
+     * The state of an axis.
+     */
     enum AxisState {vertical, vertical2, horizontal, horizontal2, doNotLabel, standard};
+
+    /**
+     * The direction to data from an axis.
+     */
+    enum Directions {north, northeast, east, southeast, south, southwest, west, northwest};
 
     /**
      * Calculate the transformation matrices used to draw data points and axes
@@ -545,7 +544,7 @@ protected:
     /**
      * What direction the data is from each labeled axis line.
      */
-    int DirectionToData[3];
+    Directions DirectionToData[3];
 
     /**
      * A bounding box surrounding the currently rendered data points.
