@@ -208,7 +208,7 @@ protected:
     /**
      * The direction to data from an axis.
      */
-    enum Directions {north, northeast, east, southeast, south, southwest, west, northwest};
+    enum Direction {north, northeast, east, southeast, south, southwest, west, northwest};
 
     /**
      * Calculate the transformation matrices used to draw data points and axes
@@ -333,16 +333,10 @@ protected:
     void DrawAxes(vtkContext3D* context);
 
     /**
-     * For each of the XYZ dimensions, find the axis line that is furthest
-     * from the rendered data.
-     */
-    void DetermineWhichAxesToLabel();
-
-    /**
      * For each of the XYZ dimensions, find the axis line that would be best
      * used for labelling.
      */
-    void NewDetermineWhichAxesToLabel();
+    void DetermineWhichAxesToLabel();
 
     /**
      * Draw tick marks and tick mark labels along the axes.
@@ -544,7 +538,7 @@ protected:
     /**
      * What direction the data is from each labeled axis line.
      */
-    Directions DirectionToData[3];
+    Direction DirectionToData[3];
 
     /**
      * A bounding box surrounding the currently rendered data points.
