@@ -1697,9 +1697,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
         AxisState axisState = std::get<0>(it);
         float gradient = std::get<2>(it);
         if (axisState != doNotLabel) {
-            float targetC = axisState != standard ? VTK_FLOAT_MAX : (gradient > 0) ? VTK_FLOAT_MAX : VTK_FLOAT_MAX;
-
-            float targetX, targetY;
+            float targetC, targetX, targetY;
 
             if (axisState == vertical) {
                 targetX = VTK_FLOAT_MAX;
@@ -1709,6 +1707,8 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
             } else if (axisState == vertical2 || axisState == horizontal2) {
                 targetX = VTK_FLOAT_MIN;
                 targetY = VTK_FLOAT_MAX;
+            } else { // standard
+                targetC = VTK_FLOAT_MAX;
             }
 
             int targetI, targetJ;
@@ -1752,7 +1752,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
                         }
                     } else { // standard
                         float c = gradient * ( start[1] / gradient - start[0]);
-                        if ((gradient > 0 && c < targetC) || (gradient < 0 && c < targetC)) {
+                        if (c < targetC) {
                             targetC = c;
                             targetI = i;
                             targetJ = j;
@@ -1785,7 +1785,18 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel() {
                 this->DirectionToData[axis] = west;
             } else if (axisState == horizontal || axisState == horizontal2) {
                 this->DirectionToData[axis] = north;
-            } else {
+            } else { // standard
+                if (gradient < 0.5 && gradient > -0.5) {
+                    this->DirectionToData[axis] = north;
+                } else if (gradient >= 0.5 && gradient < 2) {
+                    this->DirectionToData[axis] = northwest;
+                } else if (gradient >= 2) {
+                    this->DirectionToData[axis] = west;
+                } else if (gradient <= -0.5 && gradient > -2) {
+                    this->DirectionToData[axis] = northeast;
+                } else if (gradient <= -2) {
+                    this->DirectionToData[axis] = east;
+                }
             }
         }
     }
