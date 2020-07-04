@@ -862,25 +862,44 @@ bool vtkChartXYZ::KeyPressEvent(const vtkContextKeyEvent& evt)
 {
     std::string key = evt.GetInteractor()->GetKeySym();
 
-    if (key == "x") {
+    if (key == "x")
+    {
         this->LookDownX();
-    } else if (key == "X") {
+    }
+    else if (key == "X")
+    {
         this->LookUpX();
-    } else if (key =="y") {
+    }
+    else if (key =="y")
+    {
         this->LookDownY();
-    } else if (key == "Y") {
+    }
+    else if (key == "Y")
+    {
         this->LookUpY();
-    } else if (key == "z") {
+    }
+    else if (key == "z")
+    {
         this->LookDownZ();
-    } else if (key == "Z") {
+    }
+    else if (key == "Z")
+    {
         this->LookUpZ();
-    } else if (key == "Left") {
+    }
+    else if (key == "Left")
+    {
         this->Rotate(left);
-    } else if (key == "Up") {
+    }
+    else if (key == "Up")
+    {
         this->Rotate(up);
-    } else if (key == "Right") {
+    }
+    else if (key == "Right")
+    {
         this->Rotate(right);
-    } else if (key == "Down") {
+    }
+    else if (key == "Down")
+    {
         this->Rotate(down);
     }
 
@@ -1437,27 +1456,33 @@ void vtkChartXYZ::GetClippingPlaneEquation(int i, double* planeEquation)
 }
 
 //------------------------------------------------------------------------------
-void vtkChartXYZ::SetXAxisLabel(const char* label) {
+void vtkChartXYZ::SetXAxisLabel(const char* label)
+{
     this->XAxisLabel = label;
 }
 
 //------------------------------------------------------------------------------
-void vtkChartXYZ::SetYAxisLabel(const char* label) {
+void vtkChartXYZ::SetYAxisLabel(const char* label)
+{
     this->YAxisLabel = label;
 }
 
 //------------------------------------------------------------------------------
-void vtkChartXYZ::SetZAxisLabel(const char* label) {
+void vtkChartXYZ::SetZAxisLabel(const char* label)
+{
     this->ZAxisLabel = label;
 }
 
-void vtkChartXYZ::DetermineWhichAxesToLabel() {
+//------------------------------------------------------------------------------
+void vtkChartXYZ::DetermineWhichAxesToLabel()
+{
     // Axis state, abs(gradient), gradient, axis number.
     std::list<std::tuple<AxisState, float, float, int>> axisData;
 
     bool verticalUsed = false;
     bool horizontalUsed = false;
-    for (int axis = 0; axis < 3;axis++) {
+    for (int axis = 0; axis < 3;axis++)
+    {
         vtkVector3f start(0, 0, 0);
         vtkVector3f end(0, 0, 0);
         end[axis] = 1;
@@ -1470,15 +1495,22 @@ void vtkChartXYZ::DetermineWhichAxesToLabel() {
 
         float gradient = 0;
         AxisState axisState;
-        if (dx == 0 && dy == 0) {
+        if (dx == 0 && dy == 0)
+        {
             axisState = doNotLabel;
-        }  else if (dx == 0) {
+        }
+        else if (dx == 0)
+        {
             axisState = verticalUsed ? vertical2 : vertical;
             verticalUsed = true;
-        } else if (dy == 0) {
+        }
+        else if (dy == 0)
+        {
             axisState = horizontalUsed ? horizontal2 : horizontal;
             horizontalUsed = true;
-        } else {
+        }
+        else
+        {
             axisState = standard;
             gradient = dy / dx;
         }
@@ -1488,7 +1520,8 @@ void vtkChartXYZ::DetermineWhichAxesToLabel() {
 
     // sort the list of axes by state (low enum value to high) and, for standard axes by gradient (high to low).
     axisData.sort([](const std::tuple<AxisState, float, float, int> first,
-            const std::tuple<AxisState, float, float, int> second) -> bool {
+            const std::tuple<AxisState, float, float, int> second) -> bool
+    {
         AxisState stateFirst = std::get<0>(first);
         AxisState stateSecond = std::get<0>(second);
         float absGradientFirst = std::get<1>(first);
@@ -1497,66 +1530,91 @@ void vtkChartXYZ::DetermineWhichAxesToLabel() {
     });
 
     // for each dimension decide where to play labelling
-    for (const auto& it : axisData) {
+    for (const auto& it : axisData)
+    {
         AxisState axisState = std::get<0>(it);
         float gradient = std::get<2>(it);
-        if (axisState != doNotLabel) {
+        if (axisState != doNotLabel)
+        {
             float targetC, targetX, targetY;
 
-            if (axisState == vertical) {
+            if (axisState == vertical)
+            {
                 targetX = VTK_FLOAT_MAX;
-            } else if (axisState == horizontal) {
+            }
+            else if (axisState == horizontal)
+            {
                 targetX = VTK_FLOAT_MAX;
                 targetY = VTK_FLOAT_MAX;
-            } else if (axisState == vertical2 || axisState == horizontal2) {
+            }
+            else if (axisState == vertical2 || axisState == horizontal2)
+            {
                 targetX = VTK_FLOAT_MIN;
                 targetY = VTK_FLOAT_MAX;
-            } else { // standard
+            }
+            else
+            { // standard
                 targetC = VTK_FLOAT_MAX;
             }
 
             int targetI, targetJ;
             int axis = std::get<3>(it);
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < 2; j++) {
+
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
                     vtkVector3f start(axis == 0 ? 0 : i,
                                       axis == 1 ? 0 : (axis == 0) ? i : j,
                                       axis == 2 ? 0 : j);
 
                     this->Box->TransformPoint(start.GetData(), start.GetData());
 
-                    if (axisState == vertical) {
+                    if (axisState == vertical)
+                    {
                         float x = start[0];
-                        if (x < targetX) {
+                        if (x < targetX)
+                        {
                             targetX = x;
                             targetI = i;
                             targetJ = j;
                         }
-                    } else if (axisState == horizontal) {
-                        float x = start[0];
-                        float y = start[1];
-                        if (y <= targetY && x < targetX) {
-                            targetX = x;
-                            targetY = y;
-                            targetI = i;
-                            targetJ = j;
-                        } else if (y < targetY) {
-                            targetY = y;
-                            targetI = i;
-                            targetJ = j;
-                        }
-                    } else if (axisState == vertical2 || axisState == horizontal2) {
+                    }
+                    else if (axisState == horizontal)
+                    {
                         float x = start[0];
                         float y = start[1];
-                        if (x > targetX || y < targetY) {
+                        if (y <= targetY && x < targetX)
+                        {
                             targetX = x;
                             targetY = y;
                             targetI = i;
                             targetJ = j;
                         }
-                    } else { // standard
+                        else if (y < targetY)
+                        {
+                            targetY = y;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    }
+                    else if (axisState == vertical2 || axisState == horizontal2)
+                    {
+                        float x = start[0];
+                        float y = start[1];
+                        if (x > targetX || y < targetY)
+                        {
+                            targetX = x;
+                            targetY = y;
+                            targetI = i;
+                            targetJ = j;
+                        }
+                    }
+                    else
+                    { // standard
                         float c = gradient * ( start[1] / gradient - start[0]);
-                        if (c < targetC) {
+                        if (c < targetC)
+                        {
                             targetC = c;
                             targetI = i;
                             targetJ = j;
@@ -1565,7 +1623,8 @@ void vtkChartXYZ::DetermineWhichAxesToLabel() {
                 }
             }
 
-            switch (axis) {
+            switch (axis)
+            {
                 case 0:
                     this->XAxisToLabel[0] = static_cast<int>(targetI);
                     this->XAxisToLabel[1] = static_cast<int>(targetJ);
@@ -1584,22 +1643,38 @@ void vtkChartXYZ::DetermineWhichAxesToLabel() {
 
             // directions to data
             Direction direction = north;
-            if (axisState == vertical) {
+            if (axisState == vertical)
+            {
                 direction = east;
-            } else if (axisState == vertical2) {
+            }
+            else if (axisState == vertical2)
+            {
                 direction = west;
-            } else if (axisState == horizontal || axisState == horizontal2) {
+            }
+            else if (axisState == horizontal || axisState == horizontal2)
+            {
                 direction = north;
-            } else { // standard
-                if (gradient < 0.5 && gradient > -0.5) {
+            }
+            else
+            { // standard
+                if (gradient < 0.5 && gradient > -0.5)
+                {
                     direction = north;
-                } else if (gradient >= 0.5 && gradient < 2) {
+                }
+                else if (gradient >= 0.5 && gradient < 2)
+                {
                     direction = northwest;
-                } else if (gradient >= 2) {
+                }
+                else if (gradient >= 2)
+                {
                     direction = west;
-                } else if (gradient <= -0.5 && gradient > -2) {
+                }
+                else if (gradient <= -0.5 && gradient > -2)
+                {
                     direction = northeast;
-                } else if (gradient <= -2) {
+                }
+                else if (gradient <= -2)
+                {
                     direction = east;
                 }
             }
