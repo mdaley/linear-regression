@@ -1,7 +1,6 @@
 #include "ex1a.h"
 
 using namespace std;
-namespace plt = matplotlibcpp;
 
 int ex1a(const int argc, const char** argv) {
     cout << "Single variable linear regression..." << endl;
@@ -77,7 +76,7 @@ int ex1a(const int argc, const char** argv) {
     view->GetRenderWindow()->SetSize(800, 600);
     view->GetScene()->AddItem(chart);
 
-// Create a surface
+    // Create a surface
     vtkNew<vtkTable> table;
     vtkIdType numPoints = 101;
     for (vtkIdType i = 0; i < numPoints; ++i)
@@ -101,8 +100,11 @@ int ex1a(const int argc, const char** argv) {
 // Set up the surface plot we wish to visualize and add it to the chart.
     plot->SetXRange(-10, 10.0);
     plot->SetYRange(-2, 2);
-    plot->SetInputData(table);
+    plot->SetInputData(table, "\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e", "\xcf\xb4\xe2\x82\x8d\xe2\x82\x81\xe2\x82\x8e",
+                       "J(\xcf\xb4)");
     plot->GetPen()->SetColorF(colors->GetColor3d("Tomato").GetData());
+    chart->SetScaleBoxWithPlot(false);
+    chart->SetMargins(vtkVector4i(80, 80, 80, 80));
     chart->AddPlot(plot);
 
     view->GetRenderWindow()->SetMultiSamples(0);
@@ -110,33 +112,13 @@ int ex1a(const int argc, const char** argv) {
     view->GetRenderWindow()->Render();
     view->GetRenderer()->GetActors()->Print(cout);
 
-// rotate
-    vtkContextMouseEvent mouseEvent;
-    mouseEvent.SetInteractor(view->GetInteractor());
-
-/*vtkVector2i pos;
-
-vtkVector2i lastPos;
-mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
-lastPos.Set(100, 50);
-mouseEvent.SetLastScreenPos(lastPos);
-pos.Set(150, 100);
-mouseEvent.SetScreenPos(pos);*/
-
-/*vtkVector2d sP(pos.Cast<double>().GetData());
-vtkVector2d lSP(lastPos.Cast<double>().GetData());
-vtkVector2d screenPos(mouseEvent.GetScreenPos().Cast<double>().GetData());
-vtkVector2d lastScreenPos(mouseEvent.GetLastScreenPos().Cast<double>().GetData());*/
-
-    chart->MouseMoveEvent(mouseEvent);
-
-    string s = chart->GetAxis(0)->GetTitle();
     chart->GetAxesTextProperty()->SetFontFamily(VTK_FONT_FILE);
     chart->GetAxesTextProperty()->SetFontFile("fonts/DejaVuSans.ttf");
     chart->GetAxesTextProperty()->SetFontSize(32);
     chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
     chart->SetYAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x81\xe2\x82\x8e");
     chart->SetZAxisLabel("J(\xcf\xb4)");
+    chart->SetEnsureOuterEdgeAxisLabelling(true);
 
     view->GetInteractor()->Start();
 

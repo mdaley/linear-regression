@@ -1,7 +1,6 @@
 #ifndef ML_EX1A_H
 #define ML_EX1A_H
 
-#include "matplotlibcpp.h"
 #include "utils.h"
 
 #include <vtkSmartPointer.h>
@@ -23,7 +22,7 @@
 #include <vtkPen.h>
 #include <vtkContextMouseEvent.h>
 
-#include "vtkBetterChartXYZ.h"
+#include <vtkChartXYZ.h>
 
 int ex1a(const int argc, const char** argv);
 

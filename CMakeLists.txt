@@ -63,7 +63,7 @@ message (STATUS "VTK_VERSION: ${VTK_VERSION}")
 
 message("matio_SOURCE_DIR:${matio_SOURCE_DIR}")
 
-add_executable(ml src/main.cpp include/matplotlibcpp.h src/vtkBetterChartXYZ.h src/vtkBetterChartXYZ.cpp src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h src/ex2a.cpp src/ex2a.h src/ex2b.cpp src/ex2b.h src/ex3a.cpp src/ex3a.h)
+add_executable(ml src/main.cpp include/matplotlibcpp.h src/ex1a.cpp src/ex1a.h src/ex1b.cpp src/ex1b.h src/utils.h src/utils.cpp src/utils.h src/ex2a.cpp src/ex2a.h src/ex2b.cpp src/ex2b.h src/ex3a.cpp src/ex3a.h)
 
 target_include_directories(ml PRIVATE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} /usr/local/include include)
 target_link_libraries(ml ${Python_LIBRARIES} dlib::dlib /usr/local/lib/libmatio.dylib ${VTK_LIBRARIES})
